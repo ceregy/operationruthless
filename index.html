@@ -1,0 +1,2615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>BDR Numbers Review</title>
+<style>
+:root { color-scheme: light; }
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: #1d1d1f;
+  background: transparent;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.container { padding: 4px 4px 24px; max-width: 1100px; margin: 0 auto; }
+.header { margin-bottom: 16px; }
+.title { font-size: 20px; font-weight: 600; margin: 0 0 4px; }
+.subtitle { font-size: 13px; color: #6b6b70; margin: 0; }
+.tabs { display: inline-flex; background: #f0f0f3; border-radius: 8px; padding: 3px; margin: 16px 0 12px; }
+.tab { border: 0; background: transparent; padding: 6px 14px; font-size: 13px; font-weight: 500; color: #6b6b70; cursor: pointer; border-radius: 6px; transition: all 0.15s; }
+.tab.active { background: #fff; color: #1d1d1f; box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
+.tab:hover:not(.active) { color: #1d1d1f; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin: 8px 0 16px; }
+.card { background: #f5f5f7; border-radius: 10px; padding: 14px; }
+.card-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: #6b6b70; margin-bottom: 4px; }
+.card-value { font-size: 28px; font-weight: 600; color: #1d1d1f; line-height: 1.1; }
+.card.total .card-value { color: #0a66c2; }
+.card.total.set .card-value { color: #047857; }
+.card-sub { font-size: 11px; color: #8a8a8f; margin-top: 2px; }
+.section { margin-top: 18px; }
+.section-title { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #6b6b70; margin: 0 0 10px; }
+.chart-wrap { background: #fafafa; border: 1px solid #ececef; border-radius: 10px; padding: 14px; }
+canvas { max-width: 100%; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #ececef; }
+th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: #6b6b70; font-weight: 600; background: #fafafa; position: sticky; top: 0; }
+tr:hover { background: #fafafa; }
+.table-wrap { max-height: 480px; overflow: auto; border: 1px solid #ececef; border-radius: 10px; }
+a { color: #0a66c2; text-decoration: none; }
+a:hover { text-decoration: underline; }
+.bdr-pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 500; background: #eef3fb; color: #0a66c2; }
+.bdr-pill.set { background: #e6f4ee; color: #047857; }
+.empty { padding: 30px; text-align: center; color: #8a8a8f; font-style: italic; background: #fafafa; border: 1px solid #ececef; border-radius: 10px; }
+.error { padding: 14px; background: #fdecec; color: #8a1d1d; border-radius: 8px; margin: 12px 0; font-size: 13px; }
+.loading { padding: 30px; text-align: center; color: #8a8a8f; }
+.spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid #ddd; border-top-color: #0a66c2; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 8px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.footer-note { margin-top: 18px; font-size: 11px; color: #8a8a8f; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.summary-strip { display: flex; gap: 16px; flex-wrap: wrap; align-items: baseline; padding: 12px 14px; background: #fafafa; border: 1px solid #ececef; border-radius: 10px; margin-bottom: 10px; }
+.summary-strip .stat { font-size: 13px; color: #6b6b70; }
+.summary-strip .stat .num { font-size: 18px; font-weight: 600; color: #1d1d1f; margin-right: 4px; }
+.summary-strip .stat.held .num { color: #0a66c2; }
+.summary-strip .stat.set .num { color: #047857; }
+.summary-strip .stat.pipeline .num { color: #92400e; }
+.card.total.pipeline .card-value { color: #92400e; }
+.bdr-pill.pipeline { background: #fef3c7; color: #92400e; }
+.stage-pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; background: #f0f0f3; color: #4b4b50; }
+.amount-cell { font-variant-numeric: tabular-nums; font-weight: 500; text-align: right; }
+.filter-bar { background: #fafafa; border: 1px solid #ececef; border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; }
+.filter-row { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: center; }
+.filter-row + .filter-row { margin-top: 8px; }
+.filter-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #6b6b70; min-width: 70px; }
+.filter-pill { display: inline-block; padding: 4px 10px; border: 1px solid #d0d0d3; background: #fff; border-radius: 999px; font-size: 12px; cursor: pointer; user-select: none; transition: all 0.15s; }
+.filter-pill:hover { border-color: #0a66c2; }
+.filter-pill.active { background: #0a66c2; color: #fff; border-color: #0a66c2; }
+.filter-input { padding: 4px 8px; border: 1px solid #d0d0d3; border-radius: 6px; font-size: 12px; font-family: inherit; }
+.filter-input:focus { outline: none; border-color: #0a66c2; }
+.filter-select { padding: 4px 8px; border: 1px solid #d0d0d3; border-radius: 6px; font-size: 12px; font-family: inherit; background: #fff; min-width: 160px; }
+.filter-reset { padding: 4px 12px; border: 1px solid #d0d0d3; background: #fff; border-radius: 6px; font-size: 12px; cursor: pointer; color: #6b6b70; }
+.filter-reset:hover { border-color: #b91c1c; color: #b91c1c; }
+.filter-active-chip { display: inline-block; padding: 2px 8px; border-radius: 4px; background: #fef3c7; color: #92400e; font-size: 11px; margin-left: 8px; }
+.delta { display: inline-block; font-size: 11px; font-weight: 500; margin-top: 4px; padding: 1px 6px; border-radius: 4px; }
+.delta.up { color: #047857; background: #d1fae5; }
+.delta.down { color: #b91c1c; background: #fee2e2; }
+.delta.flat { color: #6b6b70; background: #f0f0f3; }
+.delta.neutral { color: #6b6b70; background: transparent; padding: 0; }
+.card-delta-row { margin-top: 4px; line-height: 1.2; }
+.summary-strip .stat .delta { margin-left: 6px; vertical-align: middle; font-size: 10px; padding: 1px 5px; }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1 class="title">BDR Numbers Review</h1>
+    <p class="subtitle"><span id="month-label">loading…</span> &middot; America/Denver</p>
+  </div>
+
+  <div class="summary-strip" id="summary">
+    <div class="stat held"><span class="num" id="summary-held">…</span>held</div>
+    <div class="stat set"><span class="num" id="summary-set">…</span>set</div>
+    <div class="stat"><span class="num" id="summary-ratio">—</span>held / set ratio</div>
+    <div class="stat pipeline"><span class="num" id="summary-pipeline">…</span>BDR pipeline (FY26)</div>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab active" data-tab="held" role="tab">Demos Held</button>
+    <button class="tab" data-tab="set" role="tab">Demos Set</button>
+    <button class="tab" data-tab="pipeline" role="tab">BDR Pipeline</button>
+    <button class="tab" data-tab="ae" role="tab">AE</button>
+    <button class="tab" data-tab="rev" role="tab">Rev</button>
+    <button class="tab" data-tab="pacing" role="tab">Pacing</button>
+    <button class="tab" data-tab="forecast" role="tab">Forecast</button>
+  </div>
+
+  <div id="tab-held" class="tab-panel active">
+    <div class="loading"><span class="spinner"></span>Pulling completed meetings…</div>
+  </div>
+  <div id="tab-set" class="tab-panel">
+    <div class="loading"><span class="spinner"></span>Pulling Meeting Set calls…</div>
+  </div>
+  <div id="tab-pipeline" class="tab-panel">
+    <div class="loading"><span class="spinner"></span>Pulling BDR-created pipeline…</div>
+  </div>
+  <div id="tab-ae" class="tab-panel">
+    <div class="loading"><span class="spinner"></span>Pulling AE activity…</div>
+  </div>
+  <div id="tab-rev" class="tab-panel">
+    <div class="loading"><span class="spinner"></span>Pulling closed-won revenue…</div>
+  </div>
+  <div id="tab-pacing" class="tab-panel">
+    <div class="loading"><span class="spinner"></span>Computing pacing…</div>
+  </div>
+  <div id="tab-forecast" class="tab-panel">
+    <div class="loading"><span class="spinner"></span>Pulling AE forecasts…</div>
+  </div>
+
+  <div class="footer-note">
+    BDRs: Charles Emery, Scott Nelson, Trevon Sims, Ethan Pisciotta &middot;
+    Held = <code>MEETING_EVENT</code> with <code>outcome=COMPLETED</code>, <code>start_time</code> in current month, BDR is the creator &middot;
+    Set = <code>CALL</code> with <code>disposition=Meeting Set</code>, <code>activity date</code> in current month, BDR is the assigned owner &middot;
+    Pipeline = <code>DEAL</code> on Sales Pipeline with <code>closedate</code> Feb 1 2026 – Jan 31 2027 (MST), associated to a contact whose <code>BDR Assigned</code> is one of the 4 BDRs &middot;
+    AE = Sets received / Demos held / Pipeline created per AE (Dalton, Kim, Sonja, Louis, Ethan, Kevin, Gilbert) for the month vs. previous month &middot;
+    Deltas compare to the same period in the previous calendar month (e.g., Apr 1–N vs Mar 1–N).
+  </div>
+</div>
+
+<script>
+const BDRS = [
+  { id: "162726104", name: "Charles Emery" },
+  { id: "162893902", name: "Scott Nelson" },
+  { id: "162909531", name: "Trevon Sims" },
+  { id: "81471358",  name: "Ethan Pisciotta" }
+];
+const BDR_NAME_BY_ID = Object.fromEntries(BDRS.map(b => [b.id, b.name]));
+const MEETING_SET_DISPOSITION = "fe9e2eec-e4fb-45ba-a24b-1b3c8c0eeb69";
+const PORTAL_ID = "23722835";
+
+const AES = [
+  { id: "615446058",  name: "Dalton Hall" },
+  { id: "1740906324", name: "Kimberly Murray" },
+  { id: "710368650",  name: "Sonja Ikeler" },
+  { id: "75898137",   name: "Louis Farmer" },
+  { id: "81471358",   name: "Ethan Pisciotta" },
+  { id: "162553321",  name: "Kevin Whitaker" },
+  { id: "87331686",   name: "Gilbert Paul" }
+];
+const AE_NAME_BY_ID = Object.fromEntries(AES.map(a => [a.id, a.name]));
+
+// Pacing targets (FY26)
+const PACING = {
+  revenueGoal:     4800000,           // Total FY26 close-won revenue target
+  coverageRatio:   4,                 // pipeline coverage multiple
+  bdrRevenueGoal:  2800000            // BDR-sourced revenue target (subset of revenueGoal)
+};
+PACING.totalPipeGoal  = PACING.revenueGoal    * PACING.coverageRatio; // $19.2M total pipeline goal
+PACING.bdrAnnualGoal  = PACING.bdrRevenueGoal * PACING.coverageRatio; // $11.2M BDR pipeline goal
+
+// AE individual annual revenue quotas (FY26 close-won target)
+const AE_QUOTAS = {
+  "615446058":  550000,    // Dalton Hall
+  "1740906324": 600000,    // Kimberly Murray
+  "710368650":  1000000,   // Sonja Ikeler
+  "75898137":   750000,    // Louis Farmer
+  "81471358":   200000,    // Ethan Pisciotta
+  "162553321":  750000,    // Kevin Whitaker
+  "87331686":   1000000    // Gilbert Paul
+};
+
+// AE manually-submitted forecasts for the current fiscal quarter.
+// HubSpot's "Forecast Submission" lives in a separate object the CRM MCP can't read,
+// so these are entered manually here. Update each quarter when forecasts are re-submitted.
+const AE_FORECAST_SUBMISSIONS = {
+  "615446058":  125000,    // Dalton Hall
+  "1740906324": 135000,    // Kimberly Murray
+  "710368650":  0,         // Sonja Ikeler — no forecast submitted
+  "75898137":   74000,     // Louis Farmer
+  "81471358":   71250,     // Ethan Pisciotta
+  "162553321":  27500,     // Kevin Whitaker
+  "87331686":   30000      // Gilbert Paul
+};
+
+// ---------- TZ helpers ----------
+function denverMonthBounds() {
+  const now = new Date();
+  const fmt = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Denver", year: "numeric", month: "numeric", day: "numeric"
+  });
+  const parts = Object.fromEntries(fmt.formatToParts(now).filter(p => p.type !== "literal").map(p => [p.type, parseInt(p.value, 10)]));
+  const year = parts.year, month = parts.month;
+  const nm = month === 12 ? { y: year + 1, m: 1 } : { y: year, m: month + 1 };
+  const startMs = wallClockDenverToUtcMs(year, month, 1, 0, 0, 0);
+  const endMs = wallClockDenverToUtcMs(nm.y, nm.m, 1, 0, 0, 0) - 1000;
+  const monthName = new Intl.DateTimeFormat("en-US", { timeZone: "America/Denver", month: "long", year: "numeric" }).format(now);
+  return { startMs, endMs, monthName, year, month };
+}
+
+function denverLastMonthBounds() {
+  const now = new Date();
+  const fmt = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Denver", year: "numeric", month: "numeric", day: "numeric"
+  });
+  const parts = Object.fromEntries(fmt.formatToParts(now).filter(p => p.type !== "literal").map(p => [p.type, parseInt(p.value, 10)]));
+  const year = parts.year, month = parts.month;
+  const lm = month === 1 ? { y: year - 1, m: 12 } : { y: year, m: month - 1 };
+  const startMs = wallClockDenverToUtcMs(lm.y, lm.m, 1, 0, 0, 0);
+  // End is start of *current* month minus 1 second
+  const endMs = wallClockDenverToUtcMs(year, month, 1, 0, 0, 0) - 1000;
+  // For a fair "same period" compare, also compute end at the equivalent day-of-month as today
+  const sameDayEnd = wallClockDenverToUtcMs(lm.y, lm.m, Math.min(parts.day, daysInMonth(lm.y, lm.m)), 23, 59, 59);
+  const monthName = new Intl.DateTimeFormat("en-US", { timeZone: "America/Denver", month: "long", year: "numeric" })
+    .format(new Date(wallClockDenverToUtcMs(lm.y, lm.m, 15, 12, 0, 0)));
+  return { startMs, endMs, sameDayEnd, monthName, year: lm.y, month: lm.m };
+}
+
+function daysInMonth(y, m) {
+  return new Date(Date.UTC(m === 12 ? y + 1 : y, m === 12 ? 0 : m, 0)).getUTCDate();
+}
+
+function wallClockDenverToUtcMs(y, m, d, hh, mm, ss) {
+  const guess = Date.UTC(y, m - 1, d, hh, mm, ss);
+  const denverParts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Denver", hourCycle: "h23",
+    year: "numeric", month: "numeric", day: "numeric",
+    hour: "numeric", minute: "numeric", second: "numeric"
+  }).formatToParts(new Date(guess));
+  const dp = Object.fromEntries(denverParts.filter(p => p.type !== "literal").map(p => [p.type, parseInt(p.value, 10)]));
+  const guessAsDenver = Date.UTC(dp.year, dp.month - 1, dp.day, dp.hour, dp.minute, dp.second);
+  const offset = guessAsDenver - guess;
+  return guess - offset;
+}
+
+function fmtDate(iso) {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Denver", month: "short", day: "numeric", hour: "numeric", minute: "2-digit"
+  }).format(d);
+}
+
+function dayKey(iso) {
+  if (!iso) return null;
+  const d = new Date(iso);
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Denver" }).format(d);
+}
+
+function isWeekdayInDenver(iso) {
+  if (!iso) return false;
+  const dayName = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Denver", weekday: "short"
+  }).format(new Date(iso));
+  return dayName !== "Sat" && dayName !== "Sun";
+}
+
+function isWeekdayKey(yyyymmdd) {
+  // yyyymmdd like "2026-04-15" — check weekday using a fixed midday UTC instant
+  const dt = new Date(yyyymmdd + "T12:00:00Z");
+  const dayName = new Intl.DateTimeFormat("en-US", { weekday: "short", timeZone: "UTC" }).format(dt);
+  return dayName !== "Sat" && dayName !== "Sun";
+}
+
+function escapeHtml(s) {
+  return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+}
+
+function deltaBadge(current, prev, { suffix = "", labelMonth = "last month" } = {}) {
+  if (prev == null || prev === undefined) return "";
+  const diff = current - prev;
+  const cls = diff > 0 ? "up" : diff < 0 ? "down" : "flat";
+  const arrow = diff > 0 ? "▲" : diff < 0 ? "▼" : "—";
+  const sign = diff > 0 ? "+" : diff < 0 ? "" : "";
+  const pctTxt = prev > 0 ? ` (${diff >= 0 ? "+" : ""}${Math.round((diff / prev) * 100)}%)` : "";
+  return `<span class="delta ${cls}" title="${escapeHtml(labelMonth)}: ${prev}${suffix}">${arrow} ${sign}${diff}${suffix}${pctTxt}</span>`;
+}
+
+// ---------- MCP helpers ----------
+function unwrapMcp(resp) {
+  if (resp == null) return null;
+  if (typeof resp === "string") {
+    try { return JSON.parse(resp); } catch { return null; }
+  }
+  if (resp.results) return resp;
+  if (Array.isArray(resp.content)) {
+    for (const block of resp.content) {
+      if (block && typeof block.text === "string") {
+        try {
+          const parsed = JSON.parse(block.text);
+          if (parsed && (parsed.results || parsed.total != null)) return parsed;
+        } catch { /* keep trying */ }
+      }
+    }
+  }
+  if (resp.output) return unwrapMcp(resp.output);
+  if (resp.data) return unwrapMcp(resp.data);
+  return resp;
+}
+
+async function paginatedSearch({ objectType, filters, associatedWith, properties, sortProp }) {
+  const all = [];
+  let offset = 0;
+  let total = 0;
+  const limit = 100;
+  while (true) {
+    const filterGroup = { filters };
+    if (associatedWith && associatedWith.length) filterGroup.associatedWith = associatedWith;
+    const raw = await window.cowork.callMcpTool(
+      "mcp__07adf8ab-8a2d-4dbc-911d-dd85bacf6c3b__search_crm_objects",
+      {
+        objectType,
+        filterGroups: [filterGroup],
+        properties,
+        sorts: [{ propertyName: sortProp, direction: "DESCENDING" }],
+        limit, offset,
+        chatInsights: { userIntent: "Live BDR demos artifact (held + set + pipeline)", satisfaction: "NEUTRAL" }
+      }
+    );
+    const resp = unwrapMcp(raw);
+    if (!resp || !Array.isArray(resp.results)) {
+      console.warn("Unexpected MCP response", raw);
+      break;
+    }
+    all.push(...resp.results);
+    total = resp.total ?? all.length;
+    if (all.length >= total || resp.results.length < limit) break;
+    offset += limit;
+  }
+  return { results: all, total };
+}
+
+// ---------- Fetchers ----------
+async function fetchHeld(startMs, endMs) {
+  const filters = [
+    { propertyName: "hs_meeting_outcome", operator: "EQ", value: "COMPLETED" },
+    { propertyName: "hs_meeting_start_time", operator: "GTE", value: String(startMs) },
+    { propertyName: "hs_meeting_start_time", operator: "LTE", value: String(endMs) },
+    { propertyName: "hs_created_by_user_id", operator: "IN", values: BDRS.map(b => b.id) }
+  ];
+  return paginatedSearch({
+    objectType: "MEETING_EVENT",
+    filters,
+    properties: ["hs_meeting_title", "hs_meeting_start_time", "hs_meeting_outcome", "hs_created_by_user_id", "hubspot_owner_id"],
+    sortProp: "hs_meeting_start_time"
+  });
+}
+
+async function fetchSet(startMs, endMs) {
+  // "Set" = CALL with disposition=Meeting Set, assigned to a BDR, activity date in current month.
+  // Matches the "Meetings booked per month" HubSpot report.
+  // Note: filter is on owner (assigned-to), not creator — the Nooks dialer integration
+  // creates these calls under a bot user but assigns them to the BDR.
+  const filters = [
+    { propertyName: "hs_call_disposition", operator: "EQ", value: MEETING_SET_DISPOSITION },
+    { propertyName: "hs_timestamp", operator: "GTE", value: String(startMs) },
+    { propertyName: "hs_timestamp", operator: "LTE", value: String(endMs) },
+    { propertyName: "hubspot_owner_id", operator: "IN", values: BDRS.map(b => b.id) }
+  ];
+  return paginatedSearch({
+    objectType: "CALL",
+    filters,
+    properties: ["hs_call_title", "hs_timestamp", "hs_createdate", "hs_call_disposition", "hubspot_owner_id"],
+    sortProp: "hs_timestamp"
+  });
+}
+
+// "BDR Created Pipeline" = Deals in Sales Pipeline ("default") with closedate Feb 1 2026 - Jan 31 2027 (Denver),
+// associated with a contact whose ae_assigned (BDR Assigned) is one of the 4 BDRs.
+// Approach: per-BDR, fetch contact IDs (filtered to those with associated deals to keep the IN-list small),
+// then fetch deals associated with those contacts.
+function pipelineDateBounds() {
+  const startMs = wallClockDenverToUtcMs(2026, 2, 1, 0, 0, 0);
+  const endMs   = wallClockDenverToUtcMs(2027, 2, 1, 0, 0, 0) - 1000;
+  return { startMs, endMs, label: "FY26 close dates (Feb 1 2026 – Jan 31 2027)" };
+}
+
+async function fetchPipelineForBdr(bdr, startMs, endMs) {
+  // 1) Contact IDs assigned to this BDR with at least one deal
+  const contacts = await paginatedSearch({
+    objectType: "CONTACT",
+    filters: [
+      { propertyName: "ae_assigned", operator: "EQ", value: bdr.id },
+      { propertyName: "num_associated_deals", operator: "GT", value: "0" }
+    ],
+    properties: ["email"],
+    sortProp: "createdate"
+  });
+  const contactIds = contacts.results
+    .map(r => parseInt(r.id || r.properties?.hs_object_id, 10))
+    .filter(n => Number.isFinite(n));
+  if (!contactIds.length) return { bdr, deals: [], total: 0 };
+
+  // 2) Deals on Sales Pipeline closing in range, associated with those contacts
+  const deals = await paginatedSearch({
+    objectType: "DEAL",
+    filters: [
+      { propertyName: "pipeline", operator: "EQ", value: "default" },
+      { propertyName: "closedate", operator: "GTE", value: String(startMs) },
+      { propertyName: "closedate", operator: "LTE", value: String(endMs) }
+    ],
+    associatedWith: [{
+      objectType: "contacts",
+      operator: contactIds.length === 1 ? "EQUAL" : "IN",
+      objectIdValues: contactIds
+    }],
+    properties: ["dealname", "amount", "closedate", "dealstage", "createdate"],
+    sortProp: "closedate"
+  });
+  // Dedupe by deal id (safety, in case a deal links to multiple of this BDR's contacts)
+  const byId = new Map();
+  for (const d of deals.results) byId.set(d.id || d.properties?.hs_object_id, d);
+  const unique = [...byId.values()];
+  const total = unique.reduce((sum, d) => sum + parseFloat(d.properties?.amount || 0), 0);
+  return { bdr, deals: unique, total };
+}
+
+async function fetchPipeline(startMs, endMs) {
+  // Run all 4 BDR fetches in parallel
+  const results = await Promise.all(BDRS.map(b => fetchPipelineForBdr(b, startMs, endMs)));
+  return results;
+}
+
+// Forecast snapshot: ALL Sales Pipeline deals owned by an AE with closedate in FY26,
+// regardless of forecast category. We bucket by hs_manual_forecast_category client-side.
+async function fetchForecast(qStartMs, qEndMs) {
+  const result = await paginatedSearch({
+    objectType: "DEAL",
+    filters: [
+      { propertyName: "pipeline", operator: "EQ", value: "default" },
+      { propertyName: "closedate", operator: "GTE", value: String(qStartMs) },
+      { propertyName: "closedate", operator: "LTE", value: String(qEndMs) },
+      { propertyName: "hubspot_owner_id", operator: "IN", values: AES.map(a => a.id) }
+    ],
+    properties: [
+      "dealname", "amount", "hubspot_owner_id",
+      "hs_manual_forecast_category", "dealstage", "closedate",
+      "hs_projected_amount", "hs_deal_stage_probability", "hs_forecast_amount", "hs_forecast_probability"
+    ],
+    sortProp: "closedate"
+  });
+  return result.results;
+}
+
+// Compute the current fiscal quarter (FY26 starts Feb 1 2026, runs through Jan 31 2027).
+// Quarters: Q1 = Feb-Apr, Q2 = May-Jul, Q3 = Aug-Oct, Q4 = Nov-Jan.
+function getCurrentFiscalQuarter(now = new Date()) {
+  const fmt = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Denver", year: "numeric", month: "numeric"
+  });
+  const parts = Object.fromEntries(fmt.formatToParts(now).filter(p => p.type !== "literal").map(p => [p.type, parseInt(p.value, 10)]));
+  const { year, month } = parts;
+  let fyStartYear, quarter;
+  if (month >= 2) {
+    fyStartYear = year;
+    quarter = Math.floor((month - 2) / 3) + 1; // 1..4
+  } else {
+    // January: still in previous fiscal year, Q4
+    fyStartYear = year - 1;
+    quarter = 4;
+  }
+  const qStartMonth = [2, 5, 8, 11][quarter - 1];   // Feb / May / Aug / Nov
+  const qStartYear  = fyStartYear;
+  let qEndMonth  = qStartMonth + 2;                 // last month of quarter
+  let qEndYear   = qStartYear;
+  if (qEndMonth > 12) { qEndMonth -= 12; qEndYear += 1; }
+  // End-of-quarter timestamp = first day of month-after-quarter at 00:00 Denver, minus 1 second
+  const nextYear  = qEndMonth === 12 ? qEndYear + 1 : qEndYear;
+  const nextMonth = qEndMonth === 12 ? 1            : qEndMonth + 1;
+  const qStartMs = wallClockDenverToUtcMs(qStartYear, qStartMonth, 1, 0, 0, 0);
+  const qEndMs   = wallClockDenverToUtcMs(nextYear,   nextMonth,   1, 0, 0, 0) - 1000;
+  const fyLabel = `FY${String(fyStartYear).slice(-2)}`;
+  const monthNames = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const periodLabel = `Q${quarter} ${fyLabel} · ${monthNames[qStartMonth]} ${qStartYear} – ${monthNames[qEndMonth]} ${qEndYear}`;
+  return { quarter, fyLabel, qStartMs, qEndMs, periodLabel, qStartYear, qStartMonth, qEndYear, qEndMonth };
+}
+
+// Closed-won revenue: ALL Sales Pipeline deals with dealstage=closedwon and closedate in FY26.
+// BDR-sourced subset is derived from existing pipelineData (filtered to dealstage=closedwon).
+async function fetchClosedWon(fy26StartMs, fy26EndMs) {
+  const result = await paginatedSearch({
+    objectType: "DEAL",
+    filters: [
+      { propertyName: "pipeline", operator: "EQ", value: "default" },
+      { propertyName: "dealstage", operator: "EQ", value: "closedwon" },
+      { propertyName: "closedate", operator: "GTE", value: String(fy26StartMs) },
+      { propertyName: "closedate", operator: "LTE", value: String(fy26EndMs) }
+    ],
+    properties: ["dealname", "amount", "closedate", "hubspot_owner_id"],
+    sortProp: "closedate"
+  });
+  return result.results;
+}
+
+// "AE Activity" view: per-AE Sets received, Demos held, Pipeline created — for one period.
+async function fetchAEActivity(startMs, endMs) {
+  // Sets received: MEETING_EVENTs created by a BDR, owned by an AE, createdate in range
+  const setsP = paginatedSearch({
+    objectType: "MEETING_EVENT",
+    filters: [
+      { propertyName: "hs_createdate", operator: "GTE", value: String(startMs) },
+      { propertyName: "hs_createdate", operator: "LTE", value: String(endMs) },
+      { propertyName: "hs_created_by_user_id", operator: "IN", values: BDRS.map(b => b.id) },
+      { propertyName: "hubspot_owner_id", operator: "IN", values: AES.map(a => a.id) }
+    ],
+    properties: ["hubspot_owner_id", "hs_createdate"],
+    sortProp: "hs_createdate"
+  });
+  // Demos held: COMPLETED MEETING_EVENTs of activity_type=Demo owned by an AE, start_time in range
+  // (Excludes Follow-Up and other meeting types — matches the HubSpot "Demos Held" dashboard)
+  const demosP = paginatedSearch({
+    objectType: "MEETING_EVENT",
+    filters: [
+      { propertyName: "hs_meeting_outcome", operator: "EQ", value: "COMPLETED" },
+      { propertyName: "hs_activity_type", operator: "EQ", value: "Demo" },
+      { propertyName: "hs_meeting_start_time", operator: "GTE", value: String(startMs) },
+      { propertyName: "hs_meeting_start_time", operator: "LTE", value: String(endMs) },
+      { propertyName: "hubspot_owner_id", operator: "IN", values: AES.map(a => a.id) }
+    ],
+    properties: ["hubspot_owner_id", "hs_meeting_start_time", "hs_activity_type", "hs_meeting_title", "hs_created_by_user_id", "hs_meeting_source"],
+    sortProp: "hs_meeting_start_time"
+  });
+  // Pipeline created: DEALs in Sales Pipeline owned by an AE, createdate in range
+  const dealsP = paginatedSearch({
+    objectType: "DEAL",
+    filters: [
+      { propertyName: "pipeline", operator: "EQ", value: "default" },
+      { propertyName: "createdate", operator: "GTE", value: String(startMs) },
+      { propertyName: "createdate", operator: "LTE", value: String(endMs) },
+      { propertyName: "hubspot_owner_id", operator: "IN", values: AES.map(a => a.id) }
+    ],
+    properties: ["dealname", "amount", "hubspot_owner_id", "createdate", "dealstage", "closedate"],
+    sortProp: "createdate"
+  });
+  const [sets, demos, deals] = await Promise.all([setsP, demosP, dealsP]);
+
+  // Aggregate per AE — and keep the raw deals + demos so detail tables can read them
+  const perAe = {};
+  for (const a of AES) perAe[a.id] = { name: a.name, sets: 0, demos: 0, dealCount: 0, pipeline: 0, deals: [], demoRecords: [] };
+  for (const r of sets.results) {
+    const oid = r.properties?.hubspot_owner_id;
+    if (oid in perAe) perAe[oid].sets++;
+  }
+  for (const r of demos.results) {
+    const oid = r.properties?.hubspot_owner_id;
+    if (oid in perAe) {
+      perAe[oid].demos++;
+      perAe[oid].demoRecords.push(r);
+    }
+  }
+  for (const r of deals.results) {
+    const oid = r.properties?.hubspot_owner_id;
+    if (oid in perAe) {
+      perAe[oid].dealCount++;
+      perAe[oid].pipeline += parseFloat(r.properties?.amount || 0);
+      perAe[oid].deals.push(r);
+    }
+  }
+  return perAe;
+}
+
+// ---------- Rendering ----------
+function buildDayList(startMs, endMs) {
+  const startStr = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Denver" }).format(new Date(startMs));
+  const endStr = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Denver" }).format(new Date(endMs));
+  const startD = new Date(startStr + "T12:00:00Z");
+  const endD = new Date(endStr + "T12:00:00Z");
+  const days = [];
+  for (let d = new Date(startD); d <= endD; d.setUTCDate(d.getUTCDate() + 1)) {
+    days.push(new Intl.DateTimeFormat("en-CA").format(d));
+  }
+  return days;
+}
+
+function renderPanel({ panelId, kind, results, total, monthName, startMs, endMs, prev = null, prevLabel = "last month" }) {
+  const panel = document.getElementById(panelId);
+  if (!results.length) {
+    panel.innerHTML = `<div class="empty">No ${kind === "held" ? "completed BDR-created meetings" : "BDR calls logged as Meeting Set"} yet for ${monthName}.</div>`;
+    return;
+  }
+
+  // Held attributes by creator; Set attributes by owner (assigned-to).
+  const bdrField  = kind === "held" ? "hs_created_by_user_id" : "hubspot_owner_id";
+  const dateField = kind === "held" ? "hs_meeting_start_time" : "hs_timestamp";
+
+  // Filter bar: BDR pills + reset button
+  const bdrPillsHtml = BDRS.map(b =>
+    `<button class="filter-pill active" data-bdr-id="${b.id}">${escapeHtml(b.name)}</button>`
+  ).join("");
+  const filterBarHtml = `
+    <div class="filter-bar">
+      <div class="filter-row">
+        <span class="filter-label">BDR</span>
+        <span id="filter-bdrs-${kind}">${bdrPillsHtml}</span>
+        <button id="filter-reset-${kind}" class="filter-reset" style="margin-left: auto;">Reset</button>
+      </div>
+    </div>
+    <div id="filter-summary-${kind}" class="footer-note" style="margin-bottom: 10px;"></div>
+  `;
+
+  panel.innerHTML = `
+    <div id="panel-top-${kind}"></div>
+    ${filterBarHtml}
+    <div id="panel-bottom-${kind}"></div>
+  `;
+
+  // Last-month day-of-month index for chart overlay (computed once, doesn't depend on filter)
+  const prevByDayOfMonth = {};
+  if (prev?.results) {
+    for (const r of prev.results) {
+      const isoDate = r.properties?.[dateField];
+      if (!isoDate) continue;
+      const denverDay = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Denver" }).format(new Date(isoDate)).split("-")[2];
+      const day = parseInt(denverDay, 10);
+      prevByDayOfMonth[day] = (prevByDayOfMonth[day] || 0) + 1;
+    }
+  }
+
+  let chartInstance = null;
+  const state = { bdrIds: new Set(BDRS.map(b => b.id)) };
+
+  function applyAndRender() {
+    // Filter results by selected BDRs
+    const filtered = results.filter(r => state.bdrIds.has(r.properties?.[bdrField]));
+    const filteredTotal = filtered.length;
+
+    // Filter active state
+    const filtersActive = state.bdrIds.size < BDRS.length;
+    document.getElementById(`filter-summary-${kind}`).innerHTML = filtersActive
+      ? `<span class="filter-active-chip">filters active</span> showing ${filteredTotal} of ${results.length} ${kind === "held" ? "meetings" : "calls"}`
+      : "";
+
+    // Per-BDR counts on filtered
+    const byBdr = {};
+    for (const b of BDRS) byBdr[b.id] = 0;
+    for (const r of filtered) {
+      const cid = r.properties?.[bdrField];
+      if (cid in byBdr) byBdr[cid]++;
+    }
+
+    // Per-day counts on filtered
+    const days = buildDayList(startMs, endMs);
+    const dayCounts = Object.fromEntries(days.map(d => [d, 0]));
+    for (const r of filtered) {
+      const k = dayKey(r.properties?.[dateField]);
+      if (k && k in dayCounts) dayCounts[k]++;
+    }
+
+    // Cards (total + per active BDR)
+    const totalClass = kind === "held" ? "card total" : "card total set";
+    const totalDelta = (prev?.total != null && !filtersActive) ? deltaBadge(filteredTotal, prev.total, { labelMonth: prevLabel }) : "";
+    let cardsHtml = `<div class="card ${totalClass.replace('card ', '')}"><div class="card-label">${kind === "held" ? "Held this month" : "Set this month"}</div><div class="card-value">${filteredTotal}</div><div class="card-sub">${escapeHtml(monthName)}${filtersActive ? " · filtered" : ""}</div><div class="card-delta-row">${totalDelta}</div></div>`;
+    for (const b of BDRS) {
+      if (!state.bdrIds.has(b.id)) continue;
+      const cur = byBdr[b.id] || 0;
+      const prv = prev?.byBdr ? (prev.byBdr[b.id] || 0) : null;
+      const delta = prv != null ? deltaBadge(cur, prv, { labelMonth: prevLabel }) : "";
+      cardsHtml += `<div class="card"><div class="card-label">${b.name}</div><div class="card-value">${cur}</div><div class="card-delta-row">${delta}</div></div>`;
+    }
+
+    document.getElementById(`panel-top-${kind}`).innerHTML = `
+      <div class="cards">${cardsHtml}</div>
+      <div class="section">
+        <div class="section-title">Per-day (by ${kind === "held" ? "demo date" : "date logged"})</div>
+        <div class="chart-wrap"><canvas id="chart-${kind}" height="120"></canvas></div>
+      </div>
+    `;
+
+    // Rows table
+    const pillClass = kind === "held" ? "bdr-pill" : "bdr-pill set";
+    const rowsHtml = filtered.map(r => {
+      const p = r.properties || {};
+      const id = r.id || p.hs_object_id;
+      if (kind === "held") {
+        const url = `https://app.hubspot.com/contacts/${PORTAL_ID}/objects/0-47/views/all/list/?objectId=${id}`;
+        const title = p.hs_meeting_title || r.displayName || "(no title)";
+        const bdr = BDR_NAME_BY_ID[p.hs_created_by_user_id] || p.hs_created_by_user_id || "—";
+        return `<tr>
+          <td>${fmtDate(p.hs_meeting_start_time)}</td>
+          <td><a href="${url}" target="_blank" rel="noopener">${escapeHtml(title)}</a></td>
+          <td><span class="${pillClass}">${escapeHtml(bdr)}</span></td>
+        </tr>`;
+      }
+      const url = `https://app.hubspot.com/calls/${PORTAL_ID}/review/${id}?utm_source=cowork&utm_medium=artifact`;
+      const title = p.hs_call_title || r.displayName || "(no title)";
+      const bdr = BDR_NAME_BY_ID[p.hubspot_owner_id] || p.hubspot_owner_id || "—";
+      return `<tr>
+        <td>${fmtDate(p.hs_timestamp)}</td>
+        <td><a href="${url}" target="_blank" rel="noopener">${escapeHtml(title)}</a></td>
+        <td><span class="${pillClass}">${escapeHtml(bdr)}</span></td>
+      </tr>`;
+    }).join("");
+
+    const tableHead = kind === "held"
+      ? `<tr><th>Start</th><th>Meeting</th><th>BDR</th></tr>`
+      : `<tr><th>Logged</th><th>Call</th><th>BDR (assigned)</th></tr>`;
+
+    document.getElementById(`panel-bottom-${kind}`).innerHTML = `
+      <div class="section">
+        <div class="section-title">All ${kind === "held" ? "meetings" : "calls"} (${filteredTotal})</div>
+        <div class="table-wrap">
+          <table>
+            <thead>${tableHead}</thead>
+            <tbody>${rowsHtml}</tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    // Render chart
+    if (chartInstance) chartInstance.destroy();
+    const ctx = document.getElementById(`chart-${kind}`);
+    const datasets = [{
+      label: kind === "held" ? "Held (this month)" : "Set (this month)",
+      data: days.map(d => dayCounts[d]),
+      backgroundColor: kind === "held" ? "#0a66c2" : "#047857",
+      borderRadius: 4,
+      order: 2
+    }];
+    if (prev && !filtersActive) {
+      datasets.push({
+        label: prev?.results ? prevLabel : "Last month",
+        data: days.map(d => {
+          const day = parseInt(d.split("-")[2], 10);
+          return prevByDayOfMonth[day] || 0;
+        }),
+        type: "line",
+        borderColor: "#9ca3af",
+        backgroundColor: "rgba(156, 163, 175, 0.15)",
+        borderWidth: 2,
+        borderDash: [4, 3],
+        pointRadius: 2,
+        pointBackgroundColor: "#9ca3af",
+        tension: 0.25,
+        fill: false,
+        order: 1
+      });
+    }
+    chartInstance = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: days.map(d => {
+          const dt = new Date(d + "T12:00:00Z");
+          return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(dt);
+        }),
+        datasets
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: prev && !filtersActive, position: "bottom", labels: { boxWidth: 14, font: { size: 11 } } },
+          tooltip: { mode: "index", intersect: false }
+        },
+        scales: {
+          y: { beginAtZero: true, ticks: { precision: 0, stepSize: 1 }, grid: { color: "#ececef" } },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  // Wire up filter
+  document.querySelectorAll(`#filter-bdrs-${kind} .filter-pill`).forEach(btn => {
+    btn.addEventListener("click", () => {
+      const id = btn.dataset.bdrId;
+      if (state.bdrIds.has(id)) state.bdrIds.delete(id); else state.bdrIds.add(id);
+      btn.classList.toggle("active");
+      applyAndRender();
+    });
+  });
+  document.getElementById(`filter-reset-${kind}`).addEventListener("click", () => {
+    state.bdrIds = new Set(BDRS.map(b => b.id));
+    document.querySelectorAll(`#filter-bdrs-${kind} .filter-pill`).forEach(b => b.classList.add("active"));
+    applyAndRender();
+  });
+
+  applyAndRender();
+}
+
+// ---------- Pipeline rendering ----------
+const STAGE_LABELS = {
+  appointmentscheduled: "Demo Held",
+  "1007595084": "Holding",
+  qualifiedtobuy: "Stakeholder Meeting Held",
+  decisionmakerboughtin: "Pricing Recommendation",
+  presentationscheduled: "Committed",
+  "1165163376": "Pilot Created",
+  "181940059": "Pilot Completed",
+  "1298035746": "Procurement / IT",
+  closedwon: "Closed Won",
+  closedlost: "Closed Lost",
+  "1298062188": "Nurture"
+};
+
+function fmtMoney(n) {
+  if (!Number.isFinite(n)) return "—";
+  if (n >= 1000000) return "$" + (n / 1000000).toFixed(2) + "M";
+  if (n >= 1000) return "$" + Math.round(n / 1000) + "k";
+  return "$" + n.toLocaleString();
+}
+function fmtMoneyExact(n) {
+  if (!Number.isFinite(n)) return "—";
+  return "$" + n.toLocaleString(undefined, { maximumFractionDigits: 0 });
+}
+function fmtCloseDate(iso) {
+  if (!iso) return "—";
+  return new Intl.DateTimeFormat("en-US", { timeZone: "America/Denver", month: "short", day: "numeric", year: "numeric" }).format(new Date(iso));
+}
+
+function renderPipelinePanel({ panelId, perBdr, label, curMonth, lastMonth, curMonthLabel, lastMonthLabel }) {
+  const panel = document.getElementById(panelId);
+  const totalDealsRaw = perBdr.reduce((s, x) => s + x.deals.length, 0);
+
+  if (totalDealsRaw === 0) {
+    panel.innerHTML = `<div class="empty">No BDR-created pipeline found for ${escapeHtml(label)}.</div>`;
+    return;
+  }
+
+  // Discover all stages and amount range for the filter UI
+  const allStages = new Set();
+  let minAmount = Infinity, maxAmount = -Infinity;
+  let minClose = Infinity, maxClose = -Infinity;
+  for (const x of perBdr) {
+    for (const d of x.deals) {
+      const stage = d.properties?.dealstage;
+      if (stage) allStages.add(stage);
+      const a = parseFloat(d.properties?.amount || 0);
+      if (Number.isFinite(a)) {
+        if (a < minAmount) minAmount = a;
+        if (a > maxAmount) maxAmount = a;
+      }
+      const cd = d.properties?.closedate;
+      if (cd) {
+        const t = new Date(cd).getTime();
+        if (Number.isFinite(t)) {
+          if (t < minClose) minClose = t;
+          if (t > maxClose) maxClose = t;
+        }
+      }
+    }
+  }
+  const stageList = [...allStages].sort((a, b) => (STAGE_LABELS[a] || a).localeCompare(STAGE_LABELS[b] || b));
+
+  // Filter state (defaults = unfiltered)
+  const state = {
+    bdrIds: new Set(BDRS.map(b => b.id)),
+    stages: new Set(stageList),
+    amountMin: null,
+    amountMax: null,
+    closeDateMin: null,  // YYYY-MM-DD
+    closeDateMax: null
+  };
+
+  // Build filter bar HTML
+  const bdrPillsHtml = BDRS.map(b =>
+    `<button class="filter-pill active" data-bdr-id="${b.id}">${escapeHtml(b.name)}</button>`
+  ).join("");
+  const stageOptionsHtml = stageList.map(s =>
+    `<option value="${escapeHtml(s)}" selected>${escapeHtml(STAGE_LABELS[s] || s)}</option>`
+  ).join("");
+  const isoMin = new Date(minClose).toISOString().slice(0, 10);
+  const isoMax = new Date(maxClose).toISOString().slice(0, 10);
+
+  const filterBarHtml = `
+    <div class="filter-bar">
+      <div class="filter-row">
+        <span class="filter-label">BDR</span>
+        <span id="filter-bdrs">${bdrPillsHtml}</span>
+      </div>
+      <div class="filter-row">
+        <span class="filter-label">Stage</span>
+        <select id="filter-stage" class="filter-select" multiple size="3">${stageOptionsHtml}</select>
+        <span class="filter-label" style="margin-left: 16px;">Amount</span>
+        <input type="number" id="filter-amount-min" class="filter-input" placeholder="Min $" style="width: 100px;">
+        <span style="color: #6b6b70;">–</span>
+        <input type="number" id="filter-amount-max" class="filter-input" placeholder="Max $" style="width: 100px;">
+      </div>
+      <div class="filter-row">
+        <span class="filter-label">Close date</span>
+        <input type="date" id="filter-close-min" class="filter-input" min="${isoMin}" max="${isoMax}">
+        <span style="color: #6b6b70;">–</span>
+        <input type="date" id="filter-close-max" class="filter-input" min="${isoMin}" max="${isoMax}">
+        <button id="filter-reset" class="filter-reset" style="margin-left: auto;">Reset filters</button>
+      </div>
+    </div>
+    <div id="filter-summary" class="footer-note" style="margin-bottom: 10px;"></div>
+  `;
+
+  panel.innerHTML = `
+    <div id="pipeline-content-top"></div>
+    ${filterBarHtml}
+    <div id="pipeline-content-bottom"></div>
+  `;
+
+  // Money delta helper (closure)
+  const moneyDelta = (cur, prev) => {
+    if (prev == null) return "";
+    const diff = cur - prev;
+    const cls = diff > 0 ? "up" : diff < 0 ? "down" : "flat";
+    const arrow = diff > 0 ? "▲" : diff < 0 ? "▼" : "—";
+    const sign = diff >= 0 ? "+" : "";
+    const pctTxt = prev > 0 ? ` (${diff >= 0 ? "+" : ""}${Math.round((diff / prev) * 100)}%)` : "";
+    return `<span class="delta ${cls}" title="${escapeHtml(lastMonthLabel)}: ${fmtMoneyExact(prev)}">${arrow} ${sign}${fmtMoneyExact(diff)}${pctTxt}</span>`;
+  };
+
+  let chartInstance = null;
+
+  // Apply filters and re-render content
+  function applyAndRender() {
+    // Filter perBdr deals
+    const filteredPerBdr = perBdr.map(x => {
+      if (!state.bdrIds.has(x.bdr.id)) return { bdr: x.bdr, deals: [], total: 0 };
+      const deals = x.deals.filter(d => {
+        const p = d.properties || {};
+        if (!state.stages.has(p.dealstage)) return false;
+        const amount = parseFloat(p.amount || 0);
+        if (state.amountMin != null && amount < state.amountMin) return false;
+        if (state.amountMax != null && amount > state.amountMax) return false;
+        if (p.closedate) {
+          const t = new Date(p.closedate).getTime();
+          if (state.closeDateMin != null && t < state.closeDateMin) return false;
+          if (state.closeDateMax != null && t > state.closeDateMax) return false;
+        }
+        return true;
+      });
+      const total = deals.reduce((s, d) => s + parseFloat(d.properties?.amount || 0), 0);
+      return { bdr: x.bdr, deals, total };
+    });
+
+    const grandTotal = filteredPerBdr.reduce((s, x) => s + x.total, 0);
+    const totalDeals = filteredPerBdr.reduce((s, x) => s + x.deals.length, 0);
+
+    // Filter status chip
+    const filtersActive = (
+      state.bdrIds.size < BDRS.length ||
+      state.stages.size < stageList.length ||
+      state.amountMin != null || state.amountMax != null ||
+      state.closeDateMin != null || state.closeDateMax != null
+    );
+    document.getElementById("filter-summary").innerHTML = filtersActive
+      ? `<span class="filter-active-chip">filters active</span> showing ${totalDeals} of ${totalDealsRaw} deals (${fmtMoney(grandTotal)})`
+      : `Showing all ${totalDealsRaw} deals (${fmtMoney(grandTotal)}) &middot; ${escapeHtml(label)}`;
+
+    if (totalDeals === 0) {
+      document.getElementById("pipeline-content-top").innerHTML = `<div class="empty">No deals match the current filters.</div>`;
+      document.getElementById("pipeline-content-bottom").innerHTML = "";
+      if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+      return;
+    }
+
+    // Helper closures for createdate bucketing (filtered set)
+    const sumByCreate = (deals, sMs, eMs) => {
+      let s = 0;
+      for (const d of deals) {
+        const c = d.properties?.createdate;
+        if (!c) continue;
+        const t = new Date(c).getTime();
+        if (t >= sMs && t <= eMs) s += parseFloat(d.properties?.amount || 0);
+      }
+      return s;
+    };
+    const countByCreate = (deals, sMs, eMs) => {
+      let n = 0;
+      for (const d of deals) {
+        const c = d.properties?.createdate;
+        if (!c) continue;
+        const t = new Date(c).getTime();
+        if (t >= sMs && t <= eMs) n++;
+      }
+      return n;
+    };
+
+    const curPerBdr  = {}; const prevPerBdr = {};
+    for (const x of filteredPerBdr) {
+      curPerBdr[x.bdr.id]  = sumByCreate(x.deals, curMonth.startMs,  curMonth.endMs);
+      prevPerBdr[x.bdr.id] = sumByCreate(x.deals, lastMonth.startMs, lastMonth.endMs);
+    }
+    const curTotal  = Object.values(curPerBdr).reduce((s, v) => s + v, 0);
+    const prevTotal = Object.values(prevPerBdr).reduce((s, v) => s + v, 0);
+    const curCount  = filteredPerBdr.reduce((s, x) => s + countByCreate(x.deals, curMonth.startMs,  curMonth.endMs),  0);
+
+    // Pipeline cards
+    let cardsHtml = `<div class="card total pipeline"><div class="card-label">${filtersActive ? "Filtered pipeline" : "Total pipeline"}</div><div class="card-value">${fmtMoney(grandTotal)}</div><div class="card-sub">${totalDeals} deals &middot; ${filtersActive ? "filtered" : escapeHtml(label)}</div></div>`;
+    for (const x of filteredPerBdr) {
+      cardsHtml += `<div class="card"><div class="card-label">${x.bdr.name}</div><div class="card-value">${fmtMoney(x.total)}</div><div class="card-sub">${x.deals.length} deal${x.deals.length === 1 ? "" : "s"}</div></div>`;
+    }
+
+    // Created-this-month-vs-last-month cards
+    let createdCardsHtml = `<div class="card total pipeline"><div class="card-label">Created in ${escapeHtml(curMonthLabel)}</div><div class="card-value">${fmtMoney(curTotal)}</div><div class="card-sub">${curCount} deal${curCount === 1 ? "" : "s"}</div><div class="card-delta-row">${moneyDelta(curTotal, prevTotal)}</div></div>`;
+    for (const x of filteredPerBdr) {
+      const cur = curPerBdr[x.bdr.id] || 0;
+      const prv = prevPerBdr[x.bdr.id] || 0;
+      createdCardsHtml += `<div class="card"><div class="card-label">${x.bdr.name}</div><div class="card-value">${fmtMoney(cur)}</div><div class="card-delta-row">${moneyDelta(cur, prv)}</div></div>`;
+    }
+
+    // Flat rows
+    const allRows = [];
+    for (const x of filteredPerBdr) {
+      for (const d of x.deals) {
+        allRows.push({
+          id: d.id || d.properties?.hs_object_id,
+          name: d.properties?.dealname || d.displayName || "(unnamed deal)",
+          amount: parseFloat(d.properties?.amount || 0),
+          closedate: d.properties?.closedate,
+          stage: d.properties?.dealstage,
+          bdr: x.bdr.name
+        });
+      }
+    }
+    allRows.sort((a, b) => b.amount - a.amount);
+
+    const rowsHtml = allRows.map(r => {
+      const url = `https://app.hubspot.com/contacts/${PORTAL_ID}/record/0-3/${r.id}?utm_source=cowork&utm_medium=artifact`;
+      const stageLabel = STAGE_LABELS[r.stage] || r.stage || "—";
+      return `<tr>
+        <td><a href="${url}" target="_blank" rel="noopener">${escapeHtml(r.name)}</a></td>
+        <td class="amount-cell">${fmtMoneyExact(r.amount)}</td>
+        <td><span class="stage-pill">${escapeHtml(stageLabel)}</span></td>
+        <td>${fmtCloseDate(r.closedate)}</td>
+        <td><span class="bdr-pill pipeline">${escapeHtml(r.bdr)}</span></td>
+      </tr>`;
+    }).join("");
+
+    // Stage breakdown
+    const stageTotals = {};
+    for (const r of allRows) {
+      const k = STAGE_LABELS[r.stage] || r.stage || "Unknown";
+      stageTotals[k] = (stageTotals[k] || 0) + r.amount;
+    }
+    const stageEntries = Object.entries(stageTotals).sort((a, b) => b[1] - a[1]);
+
+    document.getElementById("pipeline-content-top").innerHTML = `
+      <div class="section-title">${filtersActive ? "Filtered" : "FY26 close-date"} pipeline</div>
+      <div class="cards">${cardsHtml}</div>
+      <div class="section">
+        <div class="section-title">Created in ${escapeHtml(curMonthLabel)} vs ${escapeHtml(lastMonthLabel)}</div>
+        <div class="cards">${createdCardsHtml}</div>
+      </div>
+      <div class="section">
+        <div class="section-title">By stage</div>
+        <div class="chart-wrap"><canvas id="chart-pipeline" height="140"></canvas></div>
+      </div>
+    `;
+    document.getElementById("pipeline-content-bottom").innerHTML = `
+      <div class="section">
+        <div class="section-title">All deals (${allRows.length})</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Deal</th><th class="amount-cell">Amount</th><th>Stage</th><th>Close date</th><th>BDR</th></tr></thead>
+            <tbody>${rowsHtml}</tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    if (chartInstance) chartInstance.destroy();
+    const ctx = document.getElementById("chart-pipeline");
+    chartInstance = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: stageEntries.map(e => e[0]),
+        datasets: [{
+          label: "Pipeline $",
+          data: stageEntries.map(e => e[1]),
+          backgroundColor: "#92400e",
+          borderRadius: 4
+        }]
+      },
+      options: {
+        indexAxis: "y",
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: (item) => fmtMoneyExact(item.parsed.x) } }
+        },
+        scales: {
+          x: { beginAtZero: true, ticks: { callback: (v) => fmtMoney(v) }, grid: { color: "#ececef" } },
+          y: { grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  // Wire up filter event handlers
+  document.querySelectorAll("#filter-bdrs .filter-pill").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const id = btn.dataset.bdrId;
+      if (state.bdrIds.has(id)) state.bdrIds.delete(id); else state.bdrIds.add(id);
+      btn.classList.toggle("active");
+      applyAndRender();
+    });
+  });
+  document.getElementById("filter-stage").addEventListener("change", (e) => {
+    const sel = e.target;
+    state.stages = new Set([...sel.options].filter(o => o.selected).map(o => o.value));
+    applyAndRender();
+  });
+  document.getElementById("filter-amount-min").addEventListener("input", (e) => {
+    const v = e.target.value;
+    state.amountMin = v === "" ? null : parseFloat(v);
+    applyAndRender();
+  });
+  document.getElementById("filter-amount-max").addEventListener("input", (e) => {
+    const v = e.target.value;
+    state.amountMax = v === "" ? null : parseFloat(v);
+    applyAndRender();
+  });
+  document.getElementById("filter-close-min").addEventListener("input", (e) => {
+    const v = e.target.value;
+    state.closeDateMin = v === "" ? null : new Date(v + "T00:00:00").getTime();
+    applyAndRender();
+  });
+  document.getElementById("filter-close-max").addEventListener("input", (e) => {
+    const v = e.target.value;
+    state.closeDateMax = v === "" ? null : new Date(v + "T23:59:59").getTime();
+    applyAndRender();
+  });
+  document.getElementById("filter-reset").addEventListener("click", () => {
+    state.bdrIds = new Set(BDRS.map(b => b.id));
+    state.stages = new Set(stageList);
+    state.amountMin = null;
+    state.amountMax = null;
+    state.closeDateMin = null;
+    state.closeDateMax = null;
+    document.querySelectorAll("#filter-bdrs .filter-pill").forEach(b => b.classList.add("active"));
+    [...document.getElementById("filter-stage").options].forEach(o => o.selected = true);
+    document.getElementById("filter-amount-min").value = "";
+    document.getElementById("filter-amount-max").value = "";
+    document.getElementById("filter-close-min").value = "";
+    document.getElementById("filter-close-max").value = "";
+    applyAndRender();
+  });
+
+  applyAndRender();
+}
+
+// ---------- AE rendering ----------
+function renderAEPanel({ panelId, current, previous, monthName, prevLabel, dealToBdr = new Map() }) {
+  const panel = document.getElementById(panelId);
+  if (!current || Object.values(current).every(v => v.sets === 0 && v.demos === 0 && v.pipeline === 0)) {
+    panel.innerHTML = `<div class="empty">No AE activity yet for ${escapeHtml(monthName)}.</div>`;
+    return;
+  }
+
+  // Delta helpers
+  const intDelta = (cur, prv) => {
+    if (prv == null) return "";
+    const diff = cur - prv;
+    const cls = diff > 0 ? "up" : diff < 0 ? "down" : "flat";
+    const arrow = diff > 0 ? "▲" : diff < 0 ? "▼" : "—";
+    const sign = diff > 0 ? "+" : "";
+    return `<span class="delta ${cls}">${arrow} ${sign}${diff}</span>`;
+  };
+  const moneyDelta = (cur, prv) => {
+    if (prv == null) return "";
+    const diff = cur - prv;
+    const cls = diff > 0 ? "up" : diff < 0 ? "down" : "flat";
+    const arrow = diff > 0 ? "▲" : diff < 0 ? "▼" : "—";
+    const sign = diff >= 0 ? "+" : "";
+    return `<span class="delta ${cls}">${arrow} ${sign}${fmtMoney(diff)}</span>`;
+  };
+
+  // Filter bar: AE pills + reset
+  const aePillsHtml = AES.map(a =>
+    `<button class="filter-pill active" data-ae-id="${a.id}">${escapeHtml(a.name)}</button>`
+  ).join("");
+  panel.innerHTML = `
+    <div id="ae-top"></div>
+    <div class="filter-bar">
+      <div class="filter-row">
+        <span class="filter-label">AE</span>
+        <span id="filter-aes">${aePillsHtml}</span>
+        <button id="filter-reset-ae" class="filter-reset" style="margin-left: auto;">Reset</button>
+      </div>
+    </div>
+    <div id="filter-summary-ae" class="footer-note" style="margin-bottom: 10px;"></div>
+    <div id="ae-bottom"></div>
+  `;
+
+  let stageChartInstance = null;
+  const state = { aeIds: new Set(AES.map(a => a.id)) };
+
+  function applyAndRender() {
+    // Filter to selected AEs
+    const aes = AES
+      .filter(a => state.aeIds.has(a.id))
+      .map(a => ({
+        id: a.id, name: a.name,
+        cur: current[a.id]  || { sets: 0, demos: 0, dealCount: 0, pipeline: 0, deals: [] },
+        prv: previous[a.id] || { sets: 0, demos: 0, dealCount: 0, pipeline: 0, deals: [] }
+      }))
+      .sort((x, y) => y.cur.pipeline - x.cur.pipeline);
+
+    const filtersActive = state.aeIds.size < AES.length;
+    document.getElementById("filter-summary-ae").innerHTML = filtersActive
+      ? `<span class="filter-active-chip">filters active</span> showing ${aes.length} of ${AES.length} AEs`
+      : "";
+
+    const totalSets  = aes.reduce((s, a) => s + a.cur.sets, 0);
+    const totalDemos = aes.reduce((s, a) => s + a.cur.demos, 0);
+    const totalPipe  = aes.reduce((s, a) => s + a.cur.pipeline, 0);
+    const prevTotalSets  = aes.reduce((s, a) => s + a.prv.sets, 0);
+    const prevTotalDemos = aes.reduce((s, a) => s + a.prv.demos, 0);
+    const prevTotalPipe  = aes.reduce((s, a) => s + a.prv.pipeline, 0);
+
+    // Top stat cards
+    const cardsHtml = `
+      <div class="card total"><div class="card-label">Sets received</div>
+        <div class="card-value">${totalSets}</div>
+        <div class="card-delta-row">${intDelta(totalSets, prevTotalSets)}</div>
+        <div class="card-sub">${escapeHtml(monthName)} · BDR-set${filtersActive ? " · filtered" : ""}</div></div>
+      <div class="card total set"><div class="card-label">Demos held</div>
+        <div class="card-value">${totalDemos}</div>
+        <div class="card-delta-row">${intDelta(totalDemos, prevTotalDemos)}</div>
+        <div class="card-sub">${escapeHtml(monthName)} · AE-owned${filtersActive ? " · filtered" : ""}</div></div>
+      <div class="card total pipeline"><div class="card-label">Pipeline created</div>
+        <div class="card-value">${fmtMoney(totalPipe)}</div>
+        <div class="card-delta-row">${moneyDelta(totalPipe, prevTotalPipe)}</div>
+        <div class="card-sub">${escapeHtml(monthName)} · AE-owned deals${filtersActive ? " · filtered" : ""}</div></div>
+    `;
+
+    document.getElementById("ae-top").innerHTML = `
+      <div class="cards">${cardsHtml}</div>
+      <div class="section">
+        <div class="section-title">Pipeline created in ${escapeHtml(monthName)} — by deal stage</div>
+        <div class="chart-wrap"><canvas id="chart-ae-stage" height="140"></canvas></div>
+      </div>
+    `;
+
+    // Pipeline-by-stage chart (filtered to selected AEs)
+    const stageTotals = {};
+    for (const a of aes) {
+      for (const d of a.cur.deals || []) {
+        const stage = d.properties?.dealstage;
+        const label = STAGE_LABELS[stage] || stage || "Unknown";
+        const amt = parseFloat(d.properties?.amount || 0);
+        stageTotals[label] = (stageTotals[label] || 0) + amt;
+      }
+    }
+    const stageEntries = Object.entries(stageTotals).sort((a, b) => b[1] - a[1]);
+
+    if (stageChartInstance) stageChartInstance.destroy();
+    const ctx = document.getElementById("chart-ae-stage");
+    if (stageEntries.length === 0) {
+      ctx.parentElement.innerHTML = `<div class="empty" style="padding: 20px; font-size: 12px;">No deals created in ${escapeHtml(monthName)} for the selected AEs.</div>`;
+    } else {
+      stageChartInstance = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: stageEntries.map(e => e[0]),
+          datasets: [{
+            label: "Pipeline $",
+            data: stageEntries.map(e => e[1]),
+            backgroundColor: "#92400e",
+            borderRadius: 4
+          }]
+        },
+        options: {
+          indexAxis: "y",
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: (item) => fmtMoneyExact(item.parsed.x) } }
+          },
+          scales: {
+            x: { beginAtZero: true, ticks: { callback: (v) => fmtMoney(v) }, grid: { color: "#ececef" } },
+            y: { grid: { display: false } }
+          }
+        }
+      });
+    }
+
+    // Per-AE table
+    const rows = aes.map(a => `
+      <tr>
+        <td>${escapeHtml(a.name)}</td>
+        <td class="amount-cell">${a.cur.sets}<br><span style="font-size: 10px;">${intDelta(a.cur.sets, a.prv.sets)}</span></td>
+        <td class="amount-cell">${a.cur.demos}<br><span style="font-size: 10px;">${intDelta(a.cur.demos, a.prv.demos)}</span></td>
+        <td class="amount-cell">${fmtMoneyExact(a.cur.pipeline)}<br><span style="font-size: 10px;">${moneyDelta(a.cur.pipeline, a.prv.pipeline)}</span></td>
+        <td class="amount-cell">${a.cur.dealCount}</td>
+      </tr>`).join("");
+
+    const totalRow = `
+      <tr style="background: #fafafa; font-weight: 600;">
+        <td>${filtersActive ? "Filtered total" : "Team total"}</td>
+        <td class="amount-cell">${totalSets}</td>
+        <td class="amount-cell">${totalDemos}</td>
+        <td class="amount-cell">${fmtMoneyExact(totalPipe)}</td>
+        <td class="amount-cell">${aes.reduce((s, a) => s + a.cur.dealCount, 0)}</td>
+      </tr>`;
+
+    // Build flat demo list across selected AEs (the demos contributing to each AE's count)
+    const demoRows = [];
+    for (const a of aes) {
+      for (const m of a.cur.demoRecords || []) {
+        const p = m.properties || {};
+        const id = m.id || p.hs_object_id;
+        const creatorId = p.hs_created_by_user_id;
+        const bdrName = BDR_NAME_BY_ID[creatorId] || null;
+        demoRows.push({
+          id,
+          title: p.hs_meeting_title || m.displayName || "(no title)",
+          start: p.hs_meeting_start_time,
+          ae: a.name,
+          bdr: bdrName,
+          creatorId,
+          source: p.hs_meeting_source
+        });
+      }
+    }
+    demoRows.sort((x, y) => new Date(y.start || 0) - new Date(x.start || 0));
+
+    const demoRowsHtml = demoRows.map(r => {
+      const url = `https://app.hubspot.com/contacts/${PORTAL_ID}/objects/0-47/views/all/list/?objectId=${r.id}`;
+      const bdrCell = r.bdr
+        ? `<span class="bdr-pill pipeline">${escapeHtml(r.bdr)}</span>`
+        : `<span style="color: #8a8a8f; font-size: 11px; font-style: italic;">${escapeHtml(r.source === "CRM_UI" ? "manual log" : (r.source || "—"))}</span>`;
+      return `<tr>
+        <td>${fmtDate(r.start)}</td>
+        <td><a href="${url}" target="_blank" rel="noopener">${escapeHtml(r.title)}</a></td>
+        <td><span class="bdr-pill set">${escapeHtml(r.ae)}</span></td>
+        <td>${bdrCell}</td>
+      </tr>`;
+    }).join("");
+
+    const bdrSetDemos = demoRows.filter(r => r.bdr).length;
+    const otherDemos = demoRows.length - bdrSetDemos;
+
+    // Build flat deal list across selected AEs (created this month, AE-owned)
+    const dealRows = [];
+    for (const a of aes) {
+      for (const d of a.cur.deals || []) {
+        const id = d.id || d.properties?.hs_object_id;
+        const sourcedBdr = id != null ? (dealToBdr.get(String(id)) || null) : null;
+        dealRows.push({
+          id,
+          name: d.properties?.dealname || d.displayName || "(unnamed deal)",
+          amount: parseFloat(d.properties?.amount || 0),
+          stage: d.properties?.dealstage,
+          ae: a.name,
+          bdr: sourcedBdr,
+          closedate: d.properties?.closedate
+        });
+      }
+    }
+    dealRows.sort((x, y) => y.amount - x.amount);
+
+    const dealRowsHtml = dealRows.map(r => {
+      const url = `https://app.hubspot.com/contacts/${PORTAL_ID}/record/0-3/${r.id}?utm_source=cowork&utm_medium=artifact`;
+      const stageLabel = STAGE_LABELS[r.stage] || r.stage || "—";
+      const bdrCell = r.bdr
+        ? `<span class="bdr-pill pipeline">${escapeHtml(r.bdr)}</span>`
+        : `<span style="color: #8a8a8f; font-size: 11px; font-style: italic;">self-sourced</span>`;
+      return `<tr>
+        <td><a href="${url}" target="_blank" rel="noopener">${escapeHtml(r.name)}</a></td>
+        <td class="amount-cell">${fmtMoneyExact(r.amount)}</td>
+        <td><span class="stage-pill">${escapeHtml(stageLabel)}</span></td>
+        <td><span class="bdr-pill set">${escapeHtml(r.ae)}</span></td>
+        <td>${bdrCell}</td>
+        <td>${fmtCloseDate(r.closedate)}</td>
+      </tr>`;
+    }).join("");
+
+    const bdrSourcedCount = dealRows.filter(r => r.bdr).length;
+    const selfSourcedCount = dealRows.length - bdrSourcedCount;
+    const bdrSourcedAmount = dealRows.filter(r => r.bdr).reduce((s, r) => s + r.amount, 0);
+    const selfSourcedAmount = dealRows.filter(r => !r.bdr).reduce((s, r) => s + r.amount, 0);
+
+    document.getElementById("ae-bottom").innerHTML = `
+      <div class="section">
+        <div class="section-title">Per-AE breakdown — ${escapeHtml(monthName)} vs ${escapeHtml(prevLabel)}</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>AE</th>
+                <th class="amount-cell">Sets received</th>
+                <th class="amount-cell">Demos held</th>
+                <th class="amount-cell">Pipeline created</th>
+                <th class="amount-cell"># deals</th>
+              </tr>
+            </thead>
+            <tbody>${rows}${totalRow}</tbody>
+          </table>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-title">All demos held in ${escapeHtml(monthName)} (${demoRows.length})</div>
+        <div class="footer-note" style="margin: 0 0 8px;">
+          ${bdrSetDemos} BDR-set &middot; ${otherDemos} other (manual log / Calendly bot / self-booked)
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Start</th>
+                <th>Demo</th>
+                <th>AE</th>
+                <th>BDR (creator)</th>
+              </tr>
+            </thead>
+            <tbody>${demoRowsHtml}</tbody>
+          </table>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-title">All AE deals created in ${escapeHtml(monthName)} (${dealRows.length})</div>
+        <div class="footer-note" style="margin: 0 0 8px;">
+          ${bdrSourcedCount} BDR-sourced (${fmtMoney(bdrSourcedAmount)}) &middot;
+          ${selfSourcedCount} AE self-sourced (${fmtMoney(selfSourcedAmount)})
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Deal</th>
+                <th class="amount-cell">Amount</th>
+                <th>Stage</th>
+                <th>AE</th>
+                <th>BDR (if sourced)</th>
+                <th>Close date</th>
+              </tr>
+            </thead>
+            <tbody>${dealRowsHtml}</tbody>
+          </table>
+        </div>
+      </div>
+      <div class="footer-note" style="margin-top: 14px;">
+        <b>Sets received</b> = MEETING_EVENT created by a BDR, owned by the AE, with create date in the month &middot;
+        <b>Demos held</b> = COMPLETED MEETING_EVENT of activity type "Demo" owned by the AE with start time in the month (excludes Follow-Up and other types) &middot;
+        <b>Pipeline created</b> = $ on Sales Pipeline DEALs owned by the AE with create date in the month (all sources, not just BDR-sourced &mdash; this is wider than the BDR Pipeline tab on purpose) &middot;
+        <b>BDR (if sourced)</b> = the BDR whose contact is associated with the deal; "self-sourced" means no BDR-attributed contact.
+      </div>
+    `;
+  }
+
+  // Wire up filter
+  document.querySelectorAll("#filter-aes .filter-pill").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const id = btn.dataset.aeId;
+      if (state.aeIds.has(id)) state.aeIds.delete(id); else state.aeIds.add(id);
+      btn.classList.toggle("active");
+      applyAndRender();
+    });
+  });
+  document.getElementById("filter-reset-ae").addEventListener("click", () => {
+    state.aeIds = new Set(AES.map(a => a.id));
+    document.querySelectorAll("#filter-aes .filter-pill").forEach(b => b.classList.add("active"));
+    applyAndRender();
+  });
+
+  applyAndRender();
+}
+
+// ---------- Rev rendering ----------
+function renderRevPanel({ panelId, allClosedWon, perBdr, monthName, monthStartMs, monthEndMs, fy26Window, ownerNameById }) {
+  const panel = document.getElementById(panelId);
+
+  // FY26 totals
+  const fy26TotalAmount = allClosedWon.reduce((s, d) => s + parseFloat(d.properties?.amount || 0), 0);
+  const fy26TotalCount  = allClosedWon.length;
+
+  // Monthly totals
+  const inMonth = (iso) => {
+    if (!iso) return false;
+    const t = new Date(iso).getTime();
+    return t >= monthStartMs && t <= monthEndMs;
+  };
+  const monthlyDeals = allClosedWon.filter(d => inMonth(d.properties?.closedate));
+  const monthlyAmount = monthlyDeals.reduce((s, d) => s + parseFloat(d.properties?.amount || 0), 0);
+  const monthlyCount  = monthlyDeals.length;
+
+  // BDR-sourced (from per-BDR pipeline data, filtered to dealstage=closedwon)
+  const bdrSourced = []; // flat list of {bdrName, deal}
+  const bdrSourcedIds = new Set();
+  for (const x of perBdr) {
+    for (const d of x.deals) {
+      if (d.properties?.dealstage !== "closedwon") continue;
+      const id = String(d.id || d.properties?.hs_object_id);
+      if (bdrSourcedIds.has(id)) continue; // dedupe across BDRs (rare)
+      bdrSourcedIds.add(id);
+      bdrSourced.push({ bdrName: x.bdr.name, deal: d });
+    }
+  }
+  const bdrFy26Amount = bdrSourced.reduce((s, x) => s + parseFloat(x.deal.properties?.amount || 0), 0);
+  const bdrFy26Count  = bdrSourced.length;
+
+  const bdrMonthly = bdrSourced.filter(x => inMonth(x.deal.properties?.closedate));
+  const bdrMonthlyAmount = bdrMonthly.reduce((s, x) => s + parseFloat(x.deal.properties?.amount || 0), 0);
+  const bdrMonthlyCount  = bdrMonthly.length;
+
+  // Coverage percentages (BDR share of total)
+  const fy26Pct    = fy26TotalAmount > 0 ? Math.round((bdrFy26Amount / fy26TotalAmount) * 1000) / 10 : 0;
+  const monthPct   = monthlyAmount > 0   ? Math.round((bdrMonthlyAmount / monthlyAmount) * 1000) / 10 : 0;
+
+  // Average deal sizes (closed-won)
+  const avgFy26    = fy26TotalCount > 0  ? fy26TotalAmount / fy26TotalCount : 0;
+  const avgFy26Bdr = bdrFy26Count > 0    ? bdrFy26Amount   / bdrFy26Count   : 0;
+
+  // Per-BDR breakdown (FY26 + monthly)
+  const perBdrSummary = BDRS.map(b => {
+    const fyDeals = bdrSourced.filter(x => x.bdrName === b.name);
+    const fyAmount = fyDeals.reduce((s, x) => s + parseFloat(x.deal.properties?.amount || 0), 0);
+    const moDeals = fyDeals.filter(x => inMonth(x.deal.properties?.closedate));
+    const moAmount = moDeals.reduce((s, x) => s + parseFloat(x.deal.properties?.amount || 0), 0);
+    return { name: b.name, fyAmount, fyCount: fyDeals.length, moAmount, moCount: moDeals.length };
+  }).sort((x, y) => y.fyAmount - x.fyAmount);
+
+  // Cards
+  const cardsHtml = `
+    <div class="card total"><div class="card-label">FY26 closed-won (total)</div>
+      <div class="card-value">${fmtMoney(fy26TotalAmount)}</div>
+      <div class="card-sub">${fy26TotalCount} deals · ${escapeHtml(fy26Window)}</div></div>
+    <div class="card total set"><div class="card-label">FY26 closed-won (BDR-sourced)</div>
+      <div class="card-value">${fmtMoney(bdrFy26Amount)}</div>
+      <div class="card-sub">${bdrFy26Count} deals · ${fy26Pct}% of FY26 total</div></div>
+    <div class="card total pipeline"><div class="card-label">${escapeHtml(monthName)} closed-won (total)</div>
+      <div class="card-value">${fmtMoney(monthlyAmount)}</div>
+      <div class="card-sub">${monthlyCount} deal${monthlyCount === 1 ? "" : "s"} this month</div></div>
+    <div class="card total"><div class="card-label">${escapeHtml(monthName)} closed-won (BDR-sourced)</div>
+      <div class="card-value">${fmtMoney(bdrMonthlyAmount)}</div>
+      <div class="card-sub">${bdrMonthlyCount} deal${bdrMonthlyCount === 1 ? "" : "s"} · ${monthPct}% of monthly total</div></div>
+    <div class="card total pipeline"><div class="card-label">Average deal size</div>
+      <div class="card-value">${fmtMoney(avgFy26)}</div>
+      <div class="card-sub">FY26 closed-won &middot; BDR-sourced avg ${fmtMoney(avgFy26Bdr)}</div></div>
+  `;
+
+  // Per-BDR table
+  const bdrRowsHtml = perBdrSummary.map(r => `
+    <tr>
+      <td>${escapeHtml(r.name)}</td>
+      <td class="amount-cell">${fmtMoneyExact(r.fyAmount)}</td>
+      <td class="amount-cell">${r.fyCount}</td>
+      <td class="amount-cell">${fmtMoneyExact(r.moAmount)}</td>
+      <td class="amount-cell">${r.moCount}</td>
+    </tr>`).join("");
+  const bdrTotalRow = `
+    <tr style="background: #fafafa; font-weight: 600;">
+      <td>Team total (BDR-sourced)</td>
+      <td class="amount-cell">${fmtMoneyExact(bdrFy26Amount)}</td>
+      <td class="amount-cell">${bdrFy26Count}</td>
+      <td class="amount-cell">${fmtMoneyExact(bdrMonthlyAmount)}</td>
+      <td class="amount-cell">${bdrMonthlyCount}</td>
+    </tr>`;
+
+  // BDR-sourced closed-won deal list
+  const bdrDealRowsHtml = bdrSourced
+    .slice()
+    .sort((a, b) => parseFloat(b.deal.properties?.amount || 0) - parseFloat(a.deal.properties?.amount || 0))
+    .map(x => {
+      const d = x.deal;
+      const id = d.id || d.properties?.hs_object_id;
+      const url = `https://app.hubspot.com/contacts/${PORTAL_ID}/record/0-3/${id}?utm_source=cowork&utm_medium=artifact`;
+      const name = d.properties?.dealname || d.displayName || "(unnamed deal)";
+      const amount = parseFloat(d.properties?.amount || 0);
+      const cd = d.properties?.closedate;
+      return `<tr>
+        <td><a href="${url}" target="_blank" rel="noopener">${escapeHtml(name)}</a></td>
+        <td class="amount-cell">${fmtMoneyExact(amount)}</td>
+        <td>${fmtCloseDate(cd)}</td>
+        <td><span class="bdr-pill pipeline">${escapeHtml(x.bdrName)}</span></td>
+      </tr>`;
+    }).join("");
+
+  // Total closed-won deal list (with BDR-sourcing flag)
+  const allDealRowsHtml = allClosedWon
+    .slice()
+    .sort((a, b) => parseFloat(b.properties?.amount || 0) - parseFloat(a.properties?.amount || 0))
+    .map(d => {
+      const id = String(d.id || d.properties?.hs_object_id);
+      const url = `https://app.hubspot.com/contacts/${PORTAL_ID}/record/0-3/${id}?utm_source=cowork&utm_medium=artifact`;
+      const name = d.properties?.dealname || d.displayName || "(unnamed deal)";
+      const amount = parseFloat(d.properties?.amount || 0);
+      const cd = d.properties?.closedate;
+      const ownerName = (ownerNameById && ownerNameById[d.properties?.hubspot_owner_id]) || "—";
+      const sourced = bdrSourcedIds.has(id);
+      const bdrCell = sourced
+        ? (() => {
+            const match = bdrSourced.find(x => String(x.deal.id || x.deal.properties?.hs_object_id) === id);
+            return `<span class="bdr-pill pipeline">${escapeHtml(match?.bdrName || "BDR")}</span>`;
+          })()
+        : `<span style="color: #8a8a8f; font-size: 11px; font-style: italic;">—</span>`;
+      return `<tr>
+        <td><a href="${url}" target="_blank" rel="noopener">${escapeHtml(name)}</a></td>
+        <td class="amount-cell">${fmtMoneyExact(amount)}</td>
+        <td>${fmtCloseDate(cd)}</td>
+        <td>${escapeHtml(ownerName)}</td>
+        <td>${bdrCell}</td>
+      </tr>`;
+    }).join("");
+
+  panel.innerHTML = `
+    <div class="cards">${cardsHtml}</div>
+    <div class="section">
+      <div class="section-title">BDR-sourced closed-won by rep</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>BDR</th>
+              <th class="amount-cell">FY26 closed $</th>
+              <th class="amount-cell">FY26 # deals</th>
+              <th class="amount-cell">${escapeHtml(monthName)} closed $</th>
+              <th class="amount-cell">${escapeHtml(monthName)} # deals</th>
+            </tr>
+          </thead>
+          <tbody>${bdrRowsHtml}${bdrTotalRow}</tbody>
+        </table>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">BDR-sourced closed-won deals (${bdrSourced.length})</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Deal</th><th class="amount-cell">Amount</th><th>Close date</th><th>BDR</th></tr></thead>
+          <tbody>${bdrDealRowsHtml || `<tr><td colspan="4" style="color:#8a8a8f; font-style: italic; padding: 12px;">No BDR-sourced closed-won deals in FY26 yet.</td></tr>`}</tbody>
+        </table>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">All closed-won deals — FY26 (${fy26TotalCount})</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Deal</th><th class="amount-cell">Amount</th><th>Close date</th><th>Owner</th><th>BDR (if sourced)</th></tr></thead>
+          <tbody>${allDealRowsHtml || `<tr><td colspan="5" style="color:#8a8a8f; font-style: italic; padding: 12px;">No closed-won deals in FY26 yet.</td></tr>`}</tbody>
+        </table>
+      </div>
+    </div>
+    <div class="footer-note" style="margin-top: 14px;">
+      <b>FY26 closed-won (total)</b> = all DEALs on Sales Pipeline with dealstage=closedwon and closedate in ${escapeHtml(fy26Window)} &middot;
+      <b>FY26 closed-won (BDR-sourced)</b> = subset associated with a contact whose BDR Assigned is one of the 4 BDRs &middot;
+      <b>Monthly</b> versions further filter closedate to ${escapeHtml(monthName)}.
+    </div>
+  `;
+}
+
+// ---------- Pacing rendering ----------
+function renderPacingPanel({ panelId, perBdr, allClosedWon, fy26StartMs, fy26EndMs }) {
+  const panel = document.getElementById(panelId);
+  const todayMs = Date.now();
+  const inFY = (t) => t >= fy26StartMs && t <= Math.min(todayMs, fy26EndMs);
+
+  // Time elapsed (linear day-based pro-rating)
+  const totalDays = (fy26EndMs - fy26StartMs) / 86400000;
+  const daysElapsed = Math.max(0, Math.min(totalDays, (todayMs - fy26StartMs) / 86400000));
+  const pctElapsed = (daysElapsed / totalDays) * 100;
+
+  // BDR pipeline goal pacing
+  const targetToDate = (daysElapsed / totalDays) * PACING.bdrAnnualGoal;
+
+  // Actual: BDR-sourced deals with createdate within FY26 (and on/before today)
+  const monthlyByMonth = {};       // YYYY-MM -> $ amount
+  const monthlyByBdr   = {};       // bdrId -> $ to-date
+  for (const b of BDRS) monthlyByBdr[b.id] = 0;
+  let actualToDate = 0;
+  for (const x of perBdr) {
+    for (const d of x.deals) {
+      const cd = d.properties?.createdate;
+      if (!cd) continue;
+      const t = new Date(cd).getTime();
+      if (!inFY(t)) continue;
+      const amount = parseFloat(d.properties?.amount || 0);
+      actualToDate += amount;
+      monthlyByBdr[x.bdr.id] += amount;
+      const ym = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "America/Denver", year: "numeric", month: "2-digit"
+      }).format(new Date(cd)).slice(0, 7);
+      monthlyByMonth[ym] = (monthlyByMonth[ym] || 0) + amount;
+    }
+  }
+
+  const pacingPct  = targetToDate > 0 ? (actualToDate / targetToDate) * 100 : 0;
+  const surplus    = actualToDate - targetToDate;
+  const pacingColor = pacingPct >= 100 ? "#047857" : pacingPct >= 85 ? "#92400e" : "#b91c1c";
+  const pacingLabel = pacingPct >= 100 ? "AHEAD OF PACE" : pacingPct >= 85 ? "ON PACE" : "BEHIND PACE";
+
+  // Build full month list (Feb 2026 through Jan 2027)
+  const months = [];
+  let cursor = new Date(fy26StartMs);
+  while (cursor.getTime() <= fy26EndMs) {
+    const y = cursor.getUTCFullYear();
+    const m = cursor.getUTCMonth() + 1;
+    months.push(`${y}-${String(m).padStart(2,"0")}`);
+    cursor.setUTCMonth(cursor.getUTCMonth() + 1);
+  }
+  const monthlyTarget = PACING.bdrAnnualGoal / 12;
+
+  // Cards
+  const cardsHtml = `
+    <div class="card total pipeline">
+      <div class="card-label">FY26 BDR pipeline goal</div>
+      <div class="card-value">${fmtMoney(PACING.bdrAnnualGoal)}</div>
+      <div class="card-sub">${fmtMoney(PACING.bdrRevenueGoal)} BDR rev × ${PACING.coverageRatio}× coverage · ${Math.round(PACING.bdrRevenueGoal / PACING.revenueGoal * 100)}% of company's ${fmtMoney(PACING.revenueGoal)} target</div>
+    </div>
+    <div class="card total">
+      <div class="card-label">Pace target to-date</div>
+      <div class="card-value">${fmtMoney(targetToDate)}</div>
+      <div class="card-sub">${pctElapsed.toFixed(0)}% of FY26 elapsed (${Math.round(daysElapsed)} of ${Math.round(totalDays)} days)</div>
+    </div>
+    <div class="card total set">
+      <div class="card-label">Actual to-date</div>
+      <div class="card-value">${fmtMoney(actualToDate)}</div>
+      <div class="card-sub">BDR-sourced pipeline created Feb 1 → today</div>
+    </div>
+    <div class="card total" style="background: ${pacingPct >= 100 ? "#e6f4ee" : pacingPct >= 85 ? "#fef3c7" : "#fee2e2"};">
+      <div class="card-label">Pacing</div>
+      <div class="card-value" style="color: ${pacingColor};">${pacingPct.toFixed(0)}%</div>
+      <div class="card-sub" style="color: ${pacingColor}; font-weight: 600;">
+        ${pacingLabel} · ${surplus >= 0 ? "+" : ""}${fmtMoney(surplus)} vs target
+      </div>
+    </div>
+  `;
+
+  // Per-BDR pacing
+  const perBdrTarget = PACING.bdrAnnualGoal / BDRS.length; // simple equal split
+  const perBdrTargetToDate = (daysElapsed / totalDays) * perBdrTarget;
+  const bdrRows = BDRS.map(b => {
+    const actual = monthlyByBdr[b.id] || 0;
+    const pct = perBdrTargetToDate > 0 ? (actual / perBdrTargetToDate) * 100 : 0;
+    const color = pct >= 100 ? "#047857" : pct >= 85 ? "#92400e" : "#b91c1c";
+    return `<tr>
+      <td>${escapeHtml(b.name)}</td>
+      <td class="amount-cell">${fmtMoneyExact(perBdrTarget)}</td>
+      <td class="amount-cell">${fmtMoneyExact(perBdrTargetToDate)}</td>
+      <td class="amount-cell">${fmtMoneyExact(actual)}</td>
+      <td class="amount-cell" style="color: ${color}; font-weight: 600;">${pct.toFixed(0)}%</td>
+    </tr>`;
+  }).join("");
+  const teamPct = perBdrTargetToDate > 0 ? (actualToDate / (perBdrTarget * BDRS.length / totalDays * daysElapsed)) * 100 : 0;
+  const bdrTotalRow = `<tr style="background: #fafafa; font-weight: 600;">
+    <td>Team</td>
+    <td class="amount-cell">${fmtMoneyExact(PACING.bdrAnnualGoal)}</td>
+    <td class="amount-cell">${fmtMoneyExact(targetToDate)}</td>
+    <td class="amount-cell">${fmtMoneyExact(actualToDate)}</td>
+    <td class="amount-cell" style="font-weight: 700;">${pacingPct.toFixed(0)}%</td>
+  </tr>`;
+
+  panel.innerHTML = `
+    <div class="cards">${cardsHtml}</div>
+    <div class="section">
+      <div class="section-title">Monthly pipeline created (BDR-sourced) vs monthly target</div>
+      <div class="chart-wrap"><canvas id="chart-pacing-monthly" height="120"></canvas></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Cumulative pacing — actual vs target</div>
+      <div class="chart-wrap"><canvas id="chart-pacing-cum" height="120"></canvas></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Per-BDR pacing (equal split of the team goal)</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>BDR</th>
+              <th class="amount-cell">Annual goal</th>
+              <th class="amount-cell">Pace target to-date</th>
+              <th class="amount-cell">Actual to-date</th>
+              <th class="amount-cell">Pacing</th>
+            </tr>
+          </thead>
+          <tbody>${bdrRows}${bdrTotalRow}</tbody>
+        </table>
+      </div>
+    </div>
+    <div class="footer-note" style="margin-top: 14px;">
+      <b>Goal derivation:</b> Mojo's FY26 revenue target is ${fmtMoney(PACING.revenueGoal)}, of which ${fmtMoney(PACING.bdrRevenueGoal)} (${Math.round(PACING.bdrRevenueGoal / PACING.revenueGoal * 100)}%) is expected to be BDR-sourced. At ${PACING.coverageRatio}× pipeline coverage, that translates to a ${fmtMoney(PACING.bdrAnnualGoal)} BDR pipeline goal for the year. &middot;
+      <b>Pace target</b> pro-rates the annual goal linearly by days elapsed in FY26. &middot;
+      <b>Actual</b> = sum of <code>amount</code> on Sales Pipeline DEALs created since Feb 1, 2026 whose contact has BDR Assigned in our 4 BDRs.
+    </div>
+
+    <h2 style="font-size: 12px; color: #0e7490; margin: 22px 0 6px; text-transform: uppercase; letter-spacing: 0.05em;">AE PACING — REVENUE VS QUOTA</h2>
+    <div id="ae-pacing-content"></div>
+  `;
+
+  // ----- AE pacing section -----
+  // Per-AE actual closed-won (sum of amount where owner is the AE, FY26-wide)
+  const aeClosed = {};
+  for (const a of AES) aeClosed[a.id] = 0;
+  for (const d of (allClosedWon || [])) {
+    const oid = d.properties?.hubspot_owner_id;
+    if (oid in aeClosed) {
+      aeClosed[oid] += parseFloat(d.properties?.amount || 0);
+    }
+  }
+  const teamQuota = AES.reduce((s, a) => s + (AE_QUOTAS[a.id] || 0), 0);
+  const teamQuotaToDate = (daysElapsed / totalDays) * teamQuota;
+  const teamClosedActual = Object.values(aeClosed).reduce((s, v) => s + v, 0);
+  const teamPacingPct = teamQuotaToDate > 0 ? (teamClosedActual / teamQuotaToDate) * 100 : 0;
+  const teamPacingColor = teamPacingPct >= 100 ? "#047857" : teamPacingPct >= 85 ? "#92400e" : "#b91c1c";
+  const teamPacingLabel = teamPacingPct >= 100 ? "AHEAD OF PACE" : teamPacingPct >= 85 ? "ON PACE" : "BEHIND PACE";
+
+  // Sort by quota desc
+  const aesSorted = [...AES].sort((x, y) => (AE_QUOTAS[y.id] || 0) - (AE_QUOTAS[x.id] || 0));
+  const aeRows = aesSorted.map(a => {
+    const quota = AE_QUOTAS[a.id] || 0;
+    const target = (daysElapsed / totalDays) * quota;
+    const actual = aeClosed[a.id] || 0;
+    const pct = target > 0 ? (actual / target) * 100 : 0;
+    const color = pct >= 100 ? "#047857" : pct >= 85 ? "#92400e" : "#b91c1c";
+    return `<tr>
+      <td>${escapeHtml(a.name)}</td>
+      <td class="amount-cell">${fmtMoneyExact(quota)}</td>
+      <td class="amount-cell">${fmtMoneyExact(target)}</td>
+      <td class="amount-cell">${fmtMoneyExact(actual)}</td>
+      <td class="amount-cell" style="color: ${color}; font-weight: 600;">${pct.toFixed(0)}%</td>
+    </tr>`;
+  }).join("");
+  const aeTotalRow = `<tr style="background: #fafafa; font-weight: 600;">
+    <td>Team</td>
+    <td class="amount-cell">${fmtMoneyExact(teamQuota)}</td>
+    <td class="amount-cell">${fmtMoneyExact(teamQuotaToDate)}</td>
+    <td class="amount-cell">${fmtMoneyExact(teamClosedActual)}</td>
+    <td class="amount-cell" style="font-weight: 700;">${teamPacingPct.toFixed(0)}%</td>
+  </tr>`;
+
+  document.getElementById("ae-pacing-content").innerHTML = `
+    <div class="cards" style="margin-bottom: 10px;">
+      <div class="card total">
+        <div class="card-label">Team revenue quota (FY26)</div>
+        <div class="card-value">${fmtMoney(teamQuota)}</div>
+        <div class="card-sub">Sum of all AE individual quotas</div>
+      </div>
+      <div class="card total">
+        <div class="card-label">Pace target to-date</div>
+        <div class="card-value">${fmtMoney(teamQuotaToDate)}</div>
+        <div class="card-sub">${pctElapsed.toFixed(0)}% of FY26 elapsed</div>
+      </div>
+      <div class="card total set">
+        <div class="card-label">Closed-won to-date</div>
+        <div class="card-value">${fmtMoney(teamClosedActual)}</div>
+        <div class="card-sub">Sum of AE-owned closed-won deals</div>
+      </div>
+      <div class="card total" style="background: ${teamPacingPct >= 100 ? "#e6f4ee" : teamPacingPct >= 85 ? "#fef3c7" : "#fee2e2"};">
+        <div class="card-label">Team pacing</div>
+        <div class="card-value" style="color: ${teamPacingColor};">${teamPacingPct.toFixed(0)}%</div>
+        <div class="card-sub" style="color: ${teamPacingColor}; font-weight: 600;">${teamPacingLabel} · ${(teamClosedActual - teamQuotaToDate) >= 0 ? "+" : ""}${fmtMoney(teamClosedActual - teamQuotaToDate)} vs target</div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Per-AE pacing</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>AE</th>
+              <th class="amount-cell">Annual quota</th>
+              <th class="amount-cell">Pace target to-date</th>
+              <th class="amount-cell">Closed-won actual</th>
+              <th class="amount-cell">Pacing</th>
+            </tr>
+          </thead>
+          <tbody>${aeRows}${aeTotalRow}</tbody>
+        </table>
+      </div>
+    </div>
+    <div class="footer-note" style="margin-top: 10px;">
+      <b>Per-AE quota</b> = each rep's individual annual close-won target.
+      <b>Pace target</b> pro-rates the annual quota linearly by days elapsed.
+      <b>Closed-won actual</b> = sum of <code>amount</code> on Sales Pipeline DEALs in stage "Closed Won" with the AE as deal owner.
+    </div>
+  `;
+
+  // Monthly bar chart with target line
+  const monthLabels = months.map(ym => {
+    const dt = new Date(ym + "-15T12:00:00Z");
+    return new Intl.DateTimeFormat("en-US", { month: "short", year: "2-digit" }).format(dt);
+  });
+  const monthlyActual = months.map(ym => monthlyByMonth[ym] || 0);
+  new Chart(document.getElementById("chart-pacing-monthly"), {
+    type: "bar",
+    data: {
+      labels: monthLabels,
+      datasets: [
+        {
+          label: "Actual ($ created)",
+          data: monthlyActual,
+          backgroundColor: "#0e7490",
+          borderRadius: 4,
+          order: 2
+        },
+        {
+          label: `Monthly target (${fmtMoney(monthlyTarget)})`,
+          data: months.map(() => monthlyTarget),
+          type: "line",
+          borderColor: "#92400e",
+          backgroundColor: "rgba(146, 64, 14, 0.1)",
+          borderWidth: 2,
+          borderDash: [5, 4],
+          pointRadius: 0,
+          tension: 0,
+          fill: false,
+          order: 1
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: true, position: "bottom", labels: { boxWidth: 14, font: { size: 11 } } },
+        tooltip: { callbacks: { label: (item) => `${item.dataset.label}: ${fmtMoneyExact(item.parsed.y)}` } }
+      },
+      scales: {
+        y: { beginAtZero: true, ticks: { callback: (v) => fmtMoney(v) }, grid: { color: "#ececef" } },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+
+  // Cumulative chart: actual vs target
+  let cumActual = 0;
+  let cumTarget = 0;
+  const cumActualSeries = [];
+  const cumTargetSeries = [];
+  for (const ym of months) {
+    cumActual += (monthlyByMonth[ym] || 0);
+    cumTarget += monthlyTarget;
+    cumActualSeries.push(cumActual);
+    cumTargetSeries.push(cumTarget);
+  }
+  new Chart(document.getElementById("chart-pacing-cum"), {
+    type: "line",
+    data: {
+      labels: monthLabels,
+      datasets: [
+        {
+          label: "Cumulative target",
+          data: cumTargetSeries,
+          borderColor: "#92400e",
+          backgroundColor: "rgba(146, 64, 14, 0.08)",
+          borderWidth: 2,
+          borderDash: [5, 4],
+          pointRadius: 2,
+          fill: false,
+          tension: 0
+        },
+        {
+          label: "Cumulative actual",
+          data: cumActualSeries,
+          borderColor: "#0a66c2",
+          backgroundColor: "rgba(10, 102, 194, 0.12)",
+          borderWidth: 2.5,
+          pointRadius: 3,
+          pointBackgroundColor: "#0a66c2",
+          fill: true,
+          tension: 0.25
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: true, position: "bottom", labels: { boxWidth: 14, font: { size: 11 } } },
+        tooltip: { callbacks: { label: (item) => `${item.dataset.label}: ${fmtMoneyExact(item.parsed.y)}` } }
+      },
+      scales: {
+        y: { beginAtZero: true, ticks: { callback: (v) => fmtMoney(v) }, grid: { color: "#ececef" } },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+}
+
+// ---------- Forecast rendering (HubSpot Forecasting mirror) ----------
+function renderForecastPanel({ panelId, forecastDeals, periodLabel, qStartMs, qEndMs }) {
+  const panel = document.getElementById(panelId);
+
+  // Per-quarter localStorage so overrides don't bleed between quarters.
+  const STORAGE_KEY = `bdr-artifact:forecast-submissions:${periodLabel}`;
+  const loadOverrides = () => {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); }
+    catch { return {}; }
+  };
+  const saveOverride = (id, value) => {
+    const o = loadOverrides();
+    if (value === null || value === undefined) delete o[id];
+    else o[id] = value;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(o));
+  };
+  const clearOverrides = () => localStorage.removeItem(STORAGE_KEY);
+  const getSubmission = (id) => {
+    const o = loadOverrides();
+    return o[id] !== undefined ? o[id] : (AE_FORECAST_SUBMISSIONS[id] || 0);
+  };
+  const isOverridden = (id) => loadOverrides()[id] !== undefined;
+
+  // Bucket per AE × category. Also track weighted-pipeline (open deals × stage probability).
+  const byAe = {};
+  for (const a of AES) {
+    byAe[a.id] = {
+      name: a.name,
+      PIPELINE:  { amount: 0, count: 0 },
+      BEST_CASE: { amount: 0, count: 0 },
+      COMMIT:    { amount: 0, count: 0 },
+      CLOSED:    { amount: 0, count: 0 },
+      OMIT:      { amount: 0, count: 0 },
+      weighted:  0,        // sum of hs_projected_amount on open deals
+      openAmount: 0,       // sum of amount on open (not closed-won/lost) deals
+      deals:     []
+    };
+  }
+
+  const OPEN_STAGES_EXCLUDE = new Set(["closedwon", "closedlost"]);
+  for (const d of forecastDeals) {
+    const oid = d.properties?.hubspot_owner_id;
+    if (!(oid in byAe)) continue;
+    const cat = d.properties?.hs_manual_forecast_category || "OMIT";
+    const amount = parseFloat(d.properties?.amount || 0);
+    if (cat in byAe[oid]) {
+      byAe[oid][cat].amount += amount;
+      byAe[oid][cat].count++;
+    }
+    byAe[oid].deals.push(d);
+    const stage = d.properties?.dealstage;
+    if (!OPEN_STAGES_EXCLUDE.has(stage)) {
+      // open deal — contribute to weighted pipeline (system-computed amount × stage probability)
+      const weighted = parseFloat(d.properties?.hs_projected_amount || 0);
+      byAe[oid].weighted   += weighted;
+      byAe[oid].openAmount += amount;
+    }
+  }
+
+  // Team totals
+  const team = { PIPELINE: 0, BEST_CASE: 0, COMMIT: 0, CLOSED: 0, weighted: 0, openAmount: 0 };
+  for (const a of AES) {
+    for (const k of ["PIPELINE", "BEST_CASE", "COMMIT", "CLOSED"]) team[k] += byAe[a.id][k].amount;
+    team.weighted   += byAe[a.id].weighted;
+    team.openAmount += byAe[a.id].openAmount;
+  }
+
+  // Quarterly goal = annual quota / 4 (simple straight-line) — these don't change between renders
+  const teamAnnualQuota = AES.reduce((s, a) => s + (AE_QUOTAS[a.id] || 0), 0);
+  const teamQuarterGoal = teamAnnualQuota / 4;
+  const teamGoalAttainment = teamQuarterGoal > 0 ? (team.CLOSED / teamQuarterGoal) * 100 : 0;
+  const teamGoalGap   = Math.max(0, teamQuarterGoal - team.CLOSED);
+
+  // Everything that depends on editable submission values goes through renderInner().
+  function renderInner() {
+  // Forecast Submission = manual values (per-AE), edit-in-place via localStorage.
+  const teamForecastSubmission = AES.reduce((s, a) => s + getSubmission(a.id), 0);
+  // Coverage = (Forecast Submission + Best Case + Weighted Pipeline) ÷ remaining goal gap
+  const teamCoverageNum = teamForecastSubmission + team.BEST_CASE + team.weighted;
+  const teamCoverage = teamGoalGap > 0 ? teamCoverageNum / teamGoalGap : (teamCoverageNum > 0 ? Infinity : 0);
+
+  const attColor = teamGoalAttainment >= 100 ? "#047857" : teamGoalAttainment >= 70 ? "#92400e" : "#b91c1c";
+  const covColor = !isFinite(teamCoverage) ? "#047857" : teamCoverage >= 3 ? "#047857" : teamCoverage >= 1 ? "#92400e" : "#b91c1c";
+
+  // Hero stat cards — HubSpot Forecasting mirror
+  const cardsHtml = `
+    <div class="card total" style="background: ${teamGoalAttainment >= 100 ? "#e6f4ee" : teamGoalAttainment >= 70 ? "#fef3c7" : "#fee2e2"};">
+      <div class="card-label">Goal attainment</div>
+      <div class="card-value" style="color: ${attColor};">${teamGoalAttainment.toFixed(0)}%</div>
+      <div class="card-sub">${fmtMoney(team.CLOSED)} closed of ${fmtMoney(teamQuarterGoal)} quarter goal</div></div>
+    <div class="card total pipeline">
+      <div class="card-label">Forecast submission</div>
+      <div class="card-value">${fmtMoney(teamForecastSubmission)}</div>
+      <div class="card-sub">Commit category · AE's "will close" call</div></div>
+    <div class="card total set">
+      <div class="card-label">Best case</div>
+      <div class="card-value">${fmtMoney(team.BEST_CASE)}</div>
+      <div class="card-sub">Upside if things break right</div></div>
+    <div class="card total">
+      <div class="card-label">Weighted pipeline</div>
+      <div class="card-value" style="color: #0a66c2;">${fmtMoney(team.weighted)}</div>
+      <div class="card-sub">Open ${fmtMoney(team.openAmount)} × stage probability</div></div>
+    <div class="card total" style="background: ${teamCoverage >= 3 ? "#e6f4ee" : teamCoverage >= 1 ? "#fef3c7" : "#fee2e2"};">
+      <div class="card-label">Coverage</div>
+      <div class="card-value" style="color: ${covColor};">${!isFinite(teamCoverage) ? "—" : teamCoverage.toFixed(1) + "×"}</div>
+      <div class="card-sub">${fmtMoney(teamCoverageNum)} forecast+pipeline ÷ ${fmtMoney(teamGoalGap)} gap</div></div>
+  `;
+
+  // Per-AE table — HubSpot Forecasting columns
+  const aesSorted = [...AES].map(a => {
+    const x = byAe[a.id];
+    const quota = AE_QUOTAS[a.id] || 0;
+    const goal = quota / 4;
+    return { ...a, x, goal, quota };
+  }).sort((a, b) => b.goal - a.goal);
+
+  const aeRows = aesSorted.map(({ name, id, x, goal, quota }) => {
+    const closed = x.CLOSED.amount;
+    const submission = getSubmission(id);
+    const bestCase = x.BEST_CASE.amount;
+    const weighted = x.weighted;
+    const gap = Math.max(0, goal - closed);
+    const attainment = goal > 0 ? (closed / goal) * 100 : 0;
+    const coverageNum = submission + bestCase + weighted;
+    const coverage = gap > 0 ? coverageNum / gap : (coverageNum > 0 ? Infinity : 0);
+    const aColor = attainment >= 100 ? "#047857" : attainment >= 70 ? "#92400e" : "#b91c1c";
+    const cColor = !isFinite(coverage) ? "#047857" : coverage >= 3 ? "#047857" : coverage >= 1 ? "#92400e" : "#b91c1c";
+    const overridden = isOverridden(id);
+    const inputValue = submission > 0 ? submission.toLocaleString("en-US") : "";
+    const subDisplay = `
+      <span style="display: inline-flex; align-items: center; gap: 4px;">
+        <span style="color: #6b6b70;">$</span>
+        <input type="text" class="forecast-input" data-ae-id="${id}"
+               value="${inputValue}" placeholder="—"
+               title="Click to edit · click ↺ Reset to revert all to HubSpot defaults"
+               style="width: 78px; text-align: right; padding: 2px 6px; font-size: 12px; font-family: inherit; color: #92400e; font-weight: 600; border: 1px solid ${overridden ? "#0a66c2" : "#d0d0d3"}; border-radius: 4px; background: ${overridden ? "#eef3fb" : "#fff"};" />
+        ${overridden ? `<span style="font-size: 9px; color: #0a66c2; font-weight: 600;" title="Overridden from default">●</span>` : ""}
+      </span>
+    `;
+    return `<tr>
+      <td>${escapeHtml(name)}</td>
+      <td class="amount-cell">${fmtMoneyExact(goal)}</td>
+      <td class="amount-cell">${fmtMoneyExact(closed)}</td>
+      <td class="amount-cell" style="color: ${aColor}; font-weight: 600;">${attainment.toFixed(0)}%</td>
+      <td class="amount-cell">${subDisplay}</td>
+      <td class="amount-cell" style="color: #047857;">${fmtMoneyExact(bestCase)}</td>
+      <td class="amount-cell" style="color: #0a66c2;">${fmtMoneyExact(weighted)}</td>
+      <td class="amount-cell" style="color: ${cColor}; font-weight: 600;">${!isFinite(coverage) ? "—" : coverage.toFixed(1) + "×"}</td>
+    </tr>`;
+  }).join("");
+
+  const teamRow = `<tr style="background: #fafafa; font-weight: 600;">
+    <td>Team</td>
+    <td class="amount-cell">${fmtMoneyExact(teamQuarterGoal)}</td>
+    <td class="amount-cell">${fmtMoneyExact(team.CLOSED)}</td>
+    <td class="amount-cell" style="font-weight: 700;">${teamGoalAttainment.toFixed(0)}%</td>
+    <td class="amount-cell">${fmtMoneyExact(teamForecastSubmission)}</td>
+    <td class="amount-cell">${fmtMoneyExact(team.BEST_CASE)}</td>
+    <td class="amount-cell">${fmtMoneyExact(team.weighted)}</td>
+    <td class="amount-cell" style="font-weight: 700;">${!isFinite(teamCoverage) ? "—" : teamCoverage.toFixed(1) + "×"}</td>
+  </tr>`;
+
+  // Deal-level forecast list (for drill-in)
+  const dealRows = [];
+  for (const a of aesSorted) {
+    for (const d of a.x.deals) {
+      const cat = d.properties?.hs_manual_forecast_category || "OMIT";
+      if (cat === "OMIT") continue; // skip not-forecasted deals
+      dealRows.push({
+        id: d.id || d.properties?.hs_object_id,
+        name: d.properties?.dealname || d.displayName || "(unnamed)",
+        amount: parseFloat(d.properties?.amount || 0),
+        category: cat,
+        stage: d.properties?.dealstage,
+        closedate: d.properties?.closedate,
+        ae: a.name
+      });
+    }
+  }
+  dealRows.sort((x, y) => y.amount - x.amount);
+
+  const catBadge = (cat) => {
+    const map = {
+      PIPELINE:  { label: "Pipeline",  bg: "#eef3fb", fg: "#0a66c2" },
+      BEST_CASE: { label: "Best case", bg: "#e6f4ee", fg: "#047857" },
+      COMMIT:    { label: "Commit",    bg: "#fef3c7", fg: "#92400e" },
+      CLOSED:    { label: "Closed",    bg: "#f3edff", fg: "#7c3aed" }
+    };
+    const m = map[cat] || { label: cat, bg: "#f0f0f3", fg: "#6b6b70" };
+    return `<span style="display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; background: ${m.bg}; color: ${m.fg};">${m.label}</span>`;
+  };
+
+  const dealRowsHtml = dealRows.map(r => {
+    const url = `https://app.hubspot.com/contacts/${PORTAL_ID}/record/0-3/${r.id}?utm_source=cowork&utm_medium=artifact`;
+    const stageLabel = STAGE_LABELS[r.stage] || r.stage || "—";
+    return `<tr>
+      <td><a href="${url}" target="_blank" rel="noopener">${escapeHtml(r.name)}</a></td>
+      <td class="amount-cell">${fmtMoneyExact(r.amount)}</td>
+      <td>${catBadge(r.category)}</td>
+      <td><span class="stage-pill">${escapeHtml(stageLabel)}</span></td>
+      <td>${fmtCloseDate(r.closedate)}</td>
+      <td><span class="bdr-pill set">${escapeHtml(r.ae)}</span></td>
+    </tr>`;
+  }).join("");
+
+  panel.innerHTML = `
+    <div class="section-title" style="font-size: 11px;">${escapeHtml(periodLabel)} · Sales Pipeline · all deal stages</div>
+    <div class="cards">${cardsHtml}</div>
+    <div class="section">
+      <div class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
+        <span>Per-AE forecast — quarter goal vs forecast components</span>
+        <span style="font-weight: 400; font-size: 11px; text-transform: none; letter-spacing: 0;">
+          <span style="color: #8a8a8f;">Forecast submission column is editable · </span>
+          <button id="forecast-reset-btn" style="background: #fff; border: 1px solid #d0d0d3; border-radius: 4px; padding: 2px 8px; font-size: 11px; cursor: pointer; color: #6b6b70;">↺ Reset to defaults</button>
+        </span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>AE</th>
+              <th class="amount-cell">Quarter goal</th>
+              <th class="amount-cell">Closed-won</th>
+              <th class="amount-cell">Goal attainment</th>
+              <th class="amount-cell">Forecast submission</th>
+              <th class="amount-cell">Best case</th>
+              <th class="amount-cell">Weighted pipeline</th>
+              <th class="amount-cell">Coverage</th>
+            </tr>
+          </thead>
+          <tbody>${aeRows}${teamRow}</tbody>
+        </table>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Forecast deals (${dealRows.length})</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Deal</th><th class="amount-cell">Amount</th><th>Category</th><th>Stage</th><th>Close date</th><th>AE</th></tr></thead>
+          <tbody>${dealRowsHtml || `<tr><td colspan="6" style="color:#8a8a8f; font-style: italic; padding: 12px;">No forecasted deals yet.</td></tr>`}</tbody>
+        </table>
+      </div>
+    </div>
+    <div class="footer-note" style="margin-top: 14px;">
+      <b>Period:</b> ${escapeHtml(periodLabel)}. All deals shown have a close date in this quarter. &middot;
+      <b>Quarter goal</b> = annual quota ÷ 4 (straight-line). &middot;
+      <b>Goal attainment</b> = closed-won ÷ quarter goal (green ≥100%, amber 70–99%, red &lt;70%). &middot;
+      <b>Forecast submission</b> = each AE's manually-submitted forecast for the quarter (mirrors HubSpot's Forecasting tool; entered as a constant in the artifact since HubSpot's submitted-forecast object isn't exposed via the CRM connector). &middot;
+      <b>Best case</b> = sum of deals in Best Case category. &middot;
+      <b>Weighted pipeline</b> = sum of <code>hs_projected_amount</code> on open deals (= amount × stage probability). &middot;
+      <b>Coverage</b> = (Submission + Best Case + Weighted Pipeline) ÷ remaining goal gap. Green ≥ 3×, amber 1–3×, red &lt; 1×. &middot;
+      <b>Edit:</b> the Forecast submission column is editable inline — values persist locally in your browser per quarter. Hit "Reset to defaults" to revert to the values baked into the file.
+    </div>
+  `;
+
+  // Wire up edit-in-place inputs
+  panel.querySelectorAll(".forecast-input").forEach(input => {
+    const commit = () => {
+      const id = input.dataset.aeId;
+      const raw = input.value.replace(/[^0-9.\-]/g, ""); // strip $, commas, spaces
+      const num = raw === "" ? 0 : parseFloat(raw);
+      saveOverride(id, Number.isFinite(num) ? num : 0);
+      renderInner();
+    };
+    input.addEventListener("change", commit);
+    input.addEventListener("blur", commit);
+    input.addEventListener("keydown", (e) => { if (e.key === "Enter") { commit(); input.blur(); } });
+  });
+  // Reset button
+  const resetBtn = panel.querySelector("#forecast-reset-btn");
+  if (resetBtn) {
+    resetBtn.addEventListener("click", () => {
+      if (confirm("Reset all forecast submissions to the values baked into the artifact?")) {
+        clearOverrides();
+        renderInner();
+      }
+    });
+  }
+  }  // end renderInner
+
+  renderInner();
+}
+
+// ---------- Forecast rendering (duplicate removed) ----------
+function _unused_renderForecastPanel_v2({ panelId, forecastDeals, allClosedWon, fy26StartMs, fy26EndMs }) {
+  const panel = document.getElementById(panelId);
+  const todayMs = Date.now();
+
+  // Aggregate per AE × category
+  const perAe = {};
+  for (const a of AES) {
+    perAe[a.id] = { name: a.name, commit: 0, bestCase: 0, pipeline: 0, dealCount: 0, deals: [] };
+  }
+  for (const d of forecastDeals) {
+    const oid = d.properties?.hubspot_owner_id;
+    if (!(oid in perAe)) continue;
+    const cat = d.properties?.hs_manual_forecast_category;
+    const amt = parseFloat(d.properties?.amount || 0);
+    if (cat === "COMMIT")     perAe[oid].commit   += amt;
+    else if (cat === "BEST_CASE") perAe[oid].bestCase += amt;
+    else if (cat === "PIPELINE")  perAe[oid].pipeline += amt;
+    perAe[oid].dealCount++;
+    perAe[oid].deals.push(d);
+  }
+
+  // Closed-won YTD per AE (for accuracy lens)
+  const aeClosed = {};
+  for (const a of AES) aeClosed[a.id] = 0;
+  for (const d of (allClosedWon || [])) {
+    const oid = d.properties?.hubspot_owner_id;
+    if (oid in aeClosed) aeClosed[oid] += parseFloat(d.properties?.amount || 0);
+  }
+
+  // Time elapsed for pace target
+  const totalDays = (fy26EndMs - fy26StartMs) / 86400000;
+  const daysElapsed = Math.max(0, Math.min(totalDays, (todayMs - fy26StartMs) / 86400000));
+
+  // Team totals
+  const teamCommit   = Object.values(perAe).reduce((s, v) => s + v.commit,   0);
+  const teamBestCase = Object.values(perAe).reduce((s, v) => s + v.bestCase, 0);
+  const teamPipeline = Object.values(perAe).reduce((s, v) => s + v.pipeline, 0);
+  const teamForecast = teamCommit + teamBestCase + teamPipeline;
+  const teamClosed   = Object.values(aeClosed).reduce((s, v) => s + v, 0);
+  const teamQuota    = AES.reduce((s, a) => s + (AE_QUOTAS[a.id] || 0), 0);
+  const teamGap      = Math.max(0, teamQuota - teamClosed);
+  const teamCoverage = teamGap > 0 ? teamForecast / teamGap : 0;
+
+  // Cards
+  const cardsHtml = `
+    <div class="card total" style="background: #e6f4ee;">
+      <div class="card-label">Commit (high confidence)</div>
+      <div class="card-value" style="color: #047857;">${fmtMoney(teamCommit)}</div>
+      <div class="card-sub">${forecastDeals.filter(d => d.properties?.hs_manual_forecast_category === "COMMIT").length} deals · "will close" calls</div>
+    </div>
+    <div class="card total" style="background: #fef3c7;">
+      <div class="card-label">Best case (upside)</div>
+      <div class="card-value" style="color: #92400e;">${fmtMoney(teamBestCase)}</div>
+      <div class="card-sub">${forecastDeals.filter(d => d.properties?.hs_manual_forecast_category === "BEST_CASE").length} deals · stretch</div>
+    </div>
+    <div class="card total pipeline">
+      <div class="card-label">Pipeline (early)</div>
+      <div class="card-value">${fmtMoney(teamPipeline)}</div>
+      <div class="card-sub">${forecastDeals.filter(d => d.properties?.hs_manual_forecast_category === "PIPELINE").length} deals · forecasted but earlier stage</div>
+    </div>
+    <div class="card total">
+      <div class="card-label">Total forecasted (open)</div>
+      <div class="card-value" style="color: #0a66c2;">${fmtMoney(teamForecast)}</div>
+      <div class="card-sub">${forecastDeals.length} deals · Commit + Best Case + Pipeline</div>
+    </div>
+  `;
+
+  // Per-AE rows
+  const aesSorted = [...AES].sort((x, y) => (AE_QUOTAS[y.id] || 0) - (AE_QUOTAS[x.id] || 0));
+  const aeRows = aesSorted.map(a => {
+    const f = perAe[a.id];
+    const total = f.commit + f.bestCase + f.pipeline;
+    const closed = aeClosed[a.id] || 0;
+    const quota = AE_QUOTAS[a.id] || 0;
+    const gap = Math.max(0, quota - closed);
+    const cov = gap > 0 ? total / gap : Infinity;
+    // Color: green ≥ 3x coverage, amber 1-3x, red < 1x
+    const covColor = !isFinite(cov) ? "#047857" : cov >= 3 ? "#047857" : cov >= 1 ? "#92400e" : "#b91c1c";
+    const covLabel = !isFinite(cov) ? "—" : `${cov.toFixed(1)}×`;
+    return `<tr>
+      <td>${escapeHtml(a.name)}</td>
+      <td class="amount-cell" style="color: #047857;">${fmtMoneyExact(f.commit)}</td>
+      <td class="amount-cell" style="color: #92400e;">${fmtMoneyExact(f.bestCase)}</td>
+      <td class="amount-cell">${fmtMoneyExact(f.pipeline)}</td>
+      <td class="amount-cell" style="font-weight: 600;">${fmtMoneyExact(total)}</td>
+      <td class="amount-cell">${fmtMoneyExact(closed)}</td>
+      <td class="amount-cell">${fmtMoneyExact(gap)}</td>
+      <td class="amount-cell" style="color: ${covColor}; font-weight: 600;">${covLabel}</td>
+    </tr>`;
+  }).join("");
+
+  const aeTotalRow = `<tr style="background: #fafafa; font-weight: 600;">
+    <td>Team</td>
+    <td class="amount-cell">${fmtMoneyExact(teamCommit)}</td>
+    <td class="amount-cell">${fmtMoneyExact(teamBestCase)}</td>
+    <td class="amount-cell">${fmtMoneyExact(teamPipeline)}</td>
+    <td class="amount-cell">${fmtMoneyExact(teamForecast)}</td>
+    <td class="amount-cell">${fmtMoneyExact(teamClosed)}</td>
+    <td class="amount-cell">${fmtMoneyExact(teamGap)}</td>
+    <td class="amount-cell" style="font-weight: 700;">${teamCoverage.toFixed(1)}×</td>
+  </tr>`;
+
+  // Commit close rate (only for context — "of an AE's commit + closed-won, what % is closed?")
+  // This is a rough "are they finishing what they committed?" signal.
+  const closeRateRows = aesSorted.map(a => {
+    const f = perAe[a.id];
+    const closed = aeClosed[a.id] || 0;
+    const commitPlusClosed = f.commit + closed;
+    const rate = commitPlusClosed > 0 ? (closed / commitPlusClosed) * 100 : 0;
+    const color = rate >= 50 ? "#047857" : rate >= 25 ? "#92400e" : "#b91c1c";
+    return `<tr>
+      <td>${escapeHtml(a.name)}</td>
+      <td class="amount-cell">${fmtMoneyExact(closed)}</td>
+      <td class="amount-cell">${fmtMoneyExact(f.commit)}</td>
+      <td class="amount-cell">${fmtMoneyExact(commitPlusClosed)}</td>
+      <td class="amount-cell" style="color: ${color}; font-weight: 600;">${rate.toFixed(0)}%</td>
+    </tr>`;
+  }).join("");
+
+  // Top commit deals across team
+  const commitDeals = forecastDeals
+    .filter(d => d.properties?.hs_manual_forecast_category === "COMMIT")
+    .sort((a, b) => parseFloat(b.properties?.amount || 0) - parseFloat(a.properties?.amount || 0));
+  const commitDealsHtml = commitDeals.map(d => {
+    const id = d.id || d.properties?.hs_object_id;
+    const url = `https://app.hubspot.com/contacts/${PORTAL_ID}/record/0-3/${id}?utm_source=cowork&utm_medium=artifact`;
+    const ownerName = AE_NAME_BY_ID[d.properties?.hubspot_owner_id] || "—";
+    const stage = STAGE_LABELS[d.properties?.dealstage] || d.properties?.dealstage || "—";
+    return `<tr>
+      <td><a href="${url}" target="_blank" rel="noopener">${escapeHtml(d.properties?.dealname || "(unnamed)")}</a></td>
+      <td class="amount-cell">${fmtMoneyExact(parseFloat(d.properties?.amount || 0))}</td>
+      <td><span class="stage-pill">${escapeHtml(stage)}</span></td>
+      <td>${fmtCloseDate(d.properties?.closedate)}</td>
+      <td><span class="bdr-pill set">${escapeHtml(ownerName)}</span></td>
+    </tr>`;
+  }).join("");
+
+  panel.innerHTML = `
+    <div class="cards">${cardsHtml}</div>
+    <div class="section">
+      <div class="section-title">Per-AE forecast — open pipeline by category vs. remaining quota</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>AE</th>
+              <th class="amount-cell">Commit</th>
+              <th class="amount-cell">Best Case</th>
+              <th class="amount-cell">Pipeline</th>
+              <th class="amount-cell">Total forecasted</th>
+              <th class="amount-cell">Closed-won YTD</th>
+              <th class="amount-cell">Quota gap</th>
+              <th class="amount-cell">Coverage</th>
+            </tr>
+          </thead>
+          <tbody>${aeRows}${aeTotalRow}</tbody>
+        </table>
+      </div>
+      <div class="footer-note" style="margin-top: 6px;">
+        <b>Coverage</b> = forecasted open pipeline ÷ remaining quota gap. Green ≥ 3×, amber 1–3×, red &lt; 1× (under-forecasted vs quota).
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">How well each rep closes vs their own Commit calls</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>AE</th>
+              <th class="amount-cell">Closed-won YTD</th>
+              <th class="amount-cell">Current Commit (open)</th>
+              <th class="amount-cell">Closed + Commit</th>
+              <th class="amount-cell">% already closed</th>
+            </tr>
+          </thead>
+          <tbody>${closeRateRows}</tbody>
+        </table>
+      </div>
+      <div class="footer-note" style="margin-top: 6px;">
+        <b>% already closed</b> = closed-won YTD ÷ (closed-won YTD + open Commit). A rep close-conversion proxy: high % means they've finished what they previously committed; low % means a lot of "will close" deals are still sitting in the funnel. Not a perfect accuracy metric — HubSpot doesn't store historical forecast snapshots, so this is the best instantaneous proxy.
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">All Commit-category open deals (${commitDeals.length})</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Deal</th>
+              <th class="amount-cell">Amount</th>
+              <th>Stage</th>
+              <th>Close date</th>
+              <th>AE</th>
+            </tr>
+          </thead>
+          <tbody>${commitDealsHtml || `<tr><td colspan="5" style="color:#8a8a8f; font-style: italic; padding: 12px;">No Commit-category open deals.</td></tr>`}</tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="footer-note" style="margin-top: 14px;">
+      <b>Forecast categories</b> are set manually by each AE on their open deals (Commit = high confidence to close, Best Case = stretch / upside, Pipeline = forecasted but earlier-stage, Omitted = not forecasted, Closed = won). &middot;
+      <b>Quota gap</b> = FY26 annual quota − closed-won YTD. &middot;
+      <b>Closed-won YTD</b> uses Sales Pipeline DEALs with dealstage=closedwon and closedate in FY26 owned by the AE.
+    </div>
+  `;
+}
+
+// ---------- Tabs ----------
+function setupTabs() {
+  document.querySelectorAll(".tab").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const target = btn.dataset.tab;
+      document.querySelectorAll(".tab").forEach(b => b.classList.toggle("active", b === btn));
+      document.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.id === `tab-${target}`));
+    });
+  });
+}
+
+// ---------- Main ----------
+function countByBdr(results, kind) {
+  const bdrField = kind === "held" ? "hs_created_by_user_id" : "hubspot_owner_id";
+  const byBdr = {};
+  for (const b of BDRS) byBdr[b.id] = 0;
+  for (const r of results) {
+    const cid = r.properties?.[bdrField];
+    if (cid in byBdr) byBdr[cid]++;
+  }
+  return byBdr;
+}
+
+(async function main() {
+  setupTabs();
+  const cur  = denverMonthBounds();
+  const last = denverLastMonthBounds();
+  document.getElementById("month-label").textContent = cur.monthName;
+  const pipelineRange = pipelineDateBounds();
+  const currentQuarter = getCurrentFiscalQuarter();
+
+  let heldData, setData, pipelineData, heldPrev, setPrev, aeCur, aePrev, allClosedWon, forecastDeals;
+  try {
+    [heldData, setData, pipelineData, heldPrev, setPrev, aeCur, aePrev, allClosedWon, forecastDeals] = await Promise.all([
+      fetchHeld(cur.startMs, cur.endMs),
+      fetchSet(cur.startMs, cur.endMs),
+      fetchPipeline(pipelineRange.startMs, pipelineRange.endMs),
+      // Compare against same period of last month (e.g., today is Apr 29 → compare vs Mar 1–29)
+      fetchHeld(last.startMs, last.sameDayEnd),
+      fetchSet(last.startMs, last.sameDayEnd),
+      // AE activity uses full current month vs full last month for fair MoM
+      fetchAEActivity(cur.startMs, cur.endMs),
+      fetchAEActivity(last.startMs, last.endMs),
+      // Closed-won revenue (FY26 window) for the Rev tab
+      fetchClosedWon(pipelineRange.startMs, pipelineRange.endMs),
+      // Forecast snapshot — current fiscal quarter (HubSpot Forecasting mirror)
+      fetchForecast(currentQuarter.qStartMs, currentQuarter.qEndMs)
+    ]);
+  } catch (e) {
+    document.getElementById("tab-held").innerHTML = `<div class="error"><strong>Couldn't load data.</strong><br>${escapeHtml(e?.message || e)}</div>`;
+    document.getElementById("tab-set").innerHTML = `<div class="error"><strong>Couldn't load data.</strong><br>${escapeHtml(e?.message || e)}</div>`;
+    document.getElementById("tab-pipeline").innerHTML = `<div class="error"><strong>Couldn't load data.</strong><br>${escapeHtml(e?.message || e)}</div>`;
+    document.getElementById("tab-ae").innerHTML = `<div class="error"><strong>Couldn't load data.</strong><br>${escapeHtml(e?.message || e)}</div>`;
+    document.getElementById("tab-rev").innerHTML = `<div class="error"><strong>Couldn't load data.</strong><br>${escapeHtml(e?.message || e)}</div>`;
+    document.getElementById("tab-pacing").innerHTML = `<div class="error"><strong>Couldn't load data.</strong><br>${escapeHtml(e?.message || e)}</div>`;
+    document.getElementById("tab-forecast").innerHTML = `<div class="error"><strong>Couldn't load data.</strong><br>${escapeHtml(e?.message || e)}</div>`;
+    console.error(e);
+    return;
+  }
+
+  // No weekday filter — match HubSpot dashboard numbers, which include weekend activity.
+  const heldCur     = heldData.results;
+  const setCur      = setData.results;
+  const heldPrevAll = heldPrev.results;
+  const setPrevAll  = setPrev.results;
+
+  const prevHeld = { total: heldPrevAll.length, byBdr: countByBdr(heldPrevAll, "held"), results: heldPrevAll };
+  const prevSet  = { total: setPrevAll.length,  byBdr: countByBdr(setPrevAll,  "set"),  results: setPrevAll };
+  const prevLabel = `${last.monthName} same period`;
+
+  // Summary strip
+  const heldEl = document.getElementById("summary-held");
+  const setEl  = document.getElementById("summary-set");
+  heldEl.innerHTML = `${heldCur.length}${deltaBadge(heldCur.length, prevHeld.total, { labelMonth: prevLabel })}`;
+  setEl.innerHTML  = `${setCur.length}${deltaBadge(setCur.length,  prevSet.total,  { labelMonth: prevLabel })}`;
+  const ratio = setCur.length > 0 ? (heldCur.length / setCur.length).toFixed(2) : "—";
+  document.getElementById("summary-ratio").textContent = ratio;
+  const pipelineGrand = pipelineData.reduce((s, x) => s + x.total, 0);
+  document.getElementById("summary-pipeline").textContent = fmtMoney(pipelineGrand);
+
+  renderPanel({ panelId: "tab-held", kind: "held", results: heldCur, total: heldCur.length, monthName: cur.monthName, startMs: cur.startMs, endMs: cur.endMs, prev: prevHeld, prevLabel });
+  renderPanel({ panelId: "tab-set",  kind: "set",  results: setCur,  total: setCur.length,  monthName: cur.monthName, startMs: cur.startMs, endMs: cur.endMs, prev: prevSet,  prevLabel });
+  renderPipelinePanel({
+    panelId: "tab-pipeline",
+    perBdr: pipelineData,
+    label: pipelineRange.label,
+    curMonth:  { startMs: cur.startMs,  endMs: cur.endMs },
+    lastMonth: { startMs: last.startMs, endMs: last.sameDayEnd },
+    curMonthLabel: cur.monthName,
+    lastMonthLabel: `${last.monthName} same period`
+  });
+  // Build a dealId -> BDR name map from the BDR pipeline data so the AE deals table
+  // can show which deals were BDR-sourced (and by whom).
+  const dealToBdr = new Map();
+  for (const x of pipelineData) {
+    for (const d of x.deals) {
+      const id = d.id || d.properties?.hs_object_id;
+      if (id != null && !dealToBdr.has(String(id))) {
+        dealToBdr.set(String(id), x.bdr.name);
+      }
+    }
+  }
+
+  renderAEPanel({
+    panelId: "tab-ae",
+    current: aeCur,
+    previous: aePrev,
+    monthName: cur.monthName,
+    prevLabel: last.monthName,
+    dealToBdr
+  });
+
+  // Owner-id → name map for the Rev deal list (BDRs + AEs)
+  const ownerNameById = {
+    ...Object.fromEntries(BDRS.map(b => [b.id, b.name])),
+    ...Object.fromEntries(AES.map(a => [a.id, a.name]))
+  };
+  renderRevPanel({
+    panelId: "tab-rev",
+    allClosedWon,
+    perBdr: pipelineData,
+    monthName: cur.monthName,
+    monthStartMs: cur.startMs,
+    monthEndMs: cur.endMs,
+    fy26Window: pipelineRange.label,
+    ownerNameById
+  });
+  renderPacingPanel({
+    panelId: "tab-pacing",
+    perBdr: pipelineData,
+    allClosedWon,
+    fy26StartMs: pipelineRange.startMs,
+    fy26EndMs:   pipelineRange.endMs
+  });
+  renderForecastPanel({
+    panelId: "tab-forecast",
+    forecastDeals,
+    periodLabel: currentQuarter.periodLabel,
+    qStartMs:   currentQuarter.qStartMs,
+    qEndMs:     currentQuarter.qEndMs
+  });
+})();
+</script>
+</body>
+</html>
